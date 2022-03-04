@@ -9,7 +9,7 @@ Look for missing tracks in your lidarr library and download them from youtube.
 vim env
 ```
 
-## dowkce run
+## docker run
 ```
 docker build -t lys .
 # you need to be careful that the path matches the path that lidarr knows
