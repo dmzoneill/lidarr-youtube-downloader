@@ -4,7 +4,7 @@ Look for missing tracks in your lidarr library and download them from youtube.
 
 # Docker Usage
 
-## Config
+### Config
 ```
 vim env
 ```
