@@ -1,5 +1,5 @@
 # lidarr-youtube-downloader
-Lidar youtube downloader
+Look for missing tracks in your lidarr library and download them from youtube.
 
 ## Requirements
 ```
@@ -24,6 +24,8 @@ python3 lidarr-youtube-search.py
 
 ## Sample output
 ```
+....
+........
 3706
 ================================================================================
 Path           : /music/The Box Tops
@@ -66,5 +68,8 @@ Added mp3 tag
 
 Already tagged
 Downloaded successfully
+
+.....
+.......
 
 ```
