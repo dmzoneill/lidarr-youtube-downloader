@@ -18,6 +18,7 @@ api_key = os.environ.get('LIDARR_API_KEY', "771de60596e946f6b3e5e6f5fb6fd729")
 lidar_db = os.environ.get(
     'LIDARR_DB',
     "../src/docker-media-center/config/lidarr/lidarr.db")
+music_path = os.environ.get('LIDARR_MUSIC_PATH', "/music")
 stop = False
 
 
@@ -97,7 +98,7 @@ def update_mp3tag(
         disc,
         discTotal,
         genre):
-    path = "/music/" + artistName + "/" + albumName
+    path = music_path + "/" + artistName + "/" + albumName
     filePath = path + "/" + artistName + " - "
     filePath += albumName + " - " + title + ".mp3"
 
@@ -230,7 +231,7 @@ def get_lidarr_track_id(cur, title, trackNumber):
 
 
 def update_lidarr_db(artistName, albumName, title, trackNumber, year):
-    path = "/music/" + artistName + "/" + albumName
+    path = music_path + "/" + artistName + "/" + albumName
     filePath = path + "/" + artistName + " - " + albumName
     filePath += " - " + title + ".mp3"
 
@@ -283,7 +284,7 @@ def get_song(
     best = 0
     bestLink = ""
     searchFor = artistName + " - " + title
-    path = "/music/" + artistName + "/" + albumName
+    path = music_path + "/" + artistName + "/" + albumName
     filePath = path + "/" + artistName + " - " + albumName
     filePath += " - " + title + ".mp3"
     os.makedirs(path, exist_ok=True)
