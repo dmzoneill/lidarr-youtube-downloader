@@ -183,6 +183,7 @@ def add_lidarr_trackfile(cur, album_id, filePath, artistName, albumName):
          datetime.now(),
          filePath,
          ))
+    print("Updated the db")
     return cur.lastrowid
 
 
