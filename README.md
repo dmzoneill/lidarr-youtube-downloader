@@ -6,7 +6,7 @@ Look for missing tracks in your lidarr library and download them from youtube.
 dnf/apt install ffmpeg
 sudo curl https://youtube-dl.org/downloads/latest/youtube-dl -o /usr/bin/youtube-dl
 chmod +x /usr/bin/youtube-dl
-pip3 install eyed3 youtubesearchpython
+pip3 install eyed3 youtube-search-python
 ```
 
 ## Config
@@ -71,4 +71,10 @@ Updated the db
 .....
 .......
 
+```
+
+## Docker
+```
+docker build -t lys .
+docker run --name lys --env-file env lys 
 ```
