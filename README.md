@@ -13,7 +13,10 @@ vim env
 ```
 docker build -t lys .
 # you need to be careful that the path matches the path that lidarr knows
-docker run -v /path/to/music:/path/to/music --name lys --env-file env lys 
+docker run \
+   -v /path/to/music:/path/to/music \
+   -v /path/to/db/file:/path/to/db/file \   
+   --name lys --env-file env lys 
 ```
 
 # Local Usage
