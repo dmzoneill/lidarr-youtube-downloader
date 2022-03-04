@@ -1,6 +1,12 @@
 # lidarr-youtube-downloader
 Look for missing tracks in your lidarr library and download them from youtube.
 
+## Docker
+```
+docker build -t lys .
+docker run --name lys --env-file env lys 
+```
+
 ## Requirements
 ```
 dnf/apt install ffmpeg
@@ -71,10 +77,4 @@ Updated the db
 .....
 .......
 
-```
-
-## Docker
-```
-docker build -t lys .
-docker run --name lys --env-file env lys 
 ```
