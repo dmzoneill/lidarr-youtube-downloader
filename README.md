@@ -19,7 +19,7 @@ export LIDARR_MUSIC_PATH="/music"
 
 ## Usage
 ```
-python3 lidarr-youtube-search.py
+python3 lidarr-youtube-downloader.py
 ```
 
 ## Sample output
