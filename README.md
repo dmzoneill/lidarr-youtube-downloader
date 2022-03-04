@@ -21,3 +21,50 @@ export LIDARR_MUSIC_PATH="/music"
 ```
 python3 lidarr-youtube-search.py
 ```
+
+## Sample output
+```
+3706
+================================================================================
+Path           : /music/The Box Tops
+Artist         : The Box Tops
+Album          : Cry Like a Baby
+Track          : I'm the One for You
+Genre          : Pop
+Date           : 1968
+CD Count       : 1
+CD No          : 1
+Track No       : 3/12
+
+youtube search
+========================================
+Best match: 0.927536231884058
+
+youtube-dl
+========================================
+youtube-dl
+ --no-progress
+ -x
+ --audio-format mp3 "https://www.youtube.com/watch?v=laMH6ZdnOpQ"
+ -o 
+ "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - I'm the One for You.mp3"
+
+ffmpeg
+========================================
+ffmpeg -i "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - I'm the One for You.mp3"
+ -metadata artist="The Box Tops"
+ -metadata year="1968"
+ -metadata title="I'm the One for You"
+ -metadata album="Cry Like a Baby"
+ -metadata track="3"
+ -metadata genre="Pop"
+ -hide_banner
+ -loglevel error
+ "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - I'm the One for You.mp3"
+
+Added mp3 tag
+
+Already tagged
+Downloaded successfully
+
+```
