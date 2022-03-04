@@ -2,7 +2,14 @@
 
 Look for missing tracks in your lidarr library and download them from youtube.
 
-## Docker
+# Docker Usage
+
+## Config
+```
+vim env
+```
+
+## dowkce run
 ```
 docker build -t lys .
 # you need to be careful that the path matches the path that lidarr knows
