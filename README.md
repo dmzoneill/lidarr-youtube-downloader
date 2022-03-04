@@ -64,10 +64,9 @@ ffmpeg -i "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - 
  -loglevel error
  "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - I'm the One for You.mp3"
 
-Added mp3 tag
-
-Already tagged
 Downloaded successfully
+Added mp3 tag
+Updated the db
 
 .....
 .......
