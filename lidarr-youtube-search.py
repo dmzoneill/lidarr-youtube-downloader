@@ -142,10 +142,6 @@ def update_mp3tag(
                 print("Updated tag")
                 print("")
                 return True
-            else:
-                print("Already tagged")
-                print("")
-                return True
         except Exception as e:
             print("Not updated, corrupt " + str(e))
             print("")
@@ -348,6 +344,7 @@ def get_song(
     proc.wait()
 
     if proc.returncode == 0:
+        print("Downloaded successfully")
         tagged = update_mp3tag(
             artistName,
             albumName,
@@ -357,8 +354,7 @@ def get_song(
             year,
             disc,
             discTotal,
-            genre)
-        print("Downloaded successfully")
+            genre)        
         if tagged:
             update_lidarr_db(artistName, albumName, title, trackNumber, year)
             rescan(path)
