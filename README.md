@@ -1,4 +1,5 @@
 # lidarr-youtube-downloader
+
 Look for missing tracks in your lidarr library and download them from youtube.
 
 ## Docker
@@ -7,6 +8,8 @@ docker build -t lys .
 # you need to be careful that the path matches the path that lidarr knows
 docker run -v /path/to/music:/path/to/music --name lys --env-file env lys 
 ```
+
+# Local Usage
 
 ## Requirements
 ```
