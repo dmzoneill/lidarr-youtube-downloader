@@ -17,7 +17,7 @@ endpoint = os.environ.get('LIDARR_URL', "http://127.0.0.1:8686")
 api_key = os.environ.get('LIDARR_API_KEY', "771de60596e946f6b3e5e6f5fb6fd729")
 lidar_db = os.environ.get(
     'LIDARR_DB',
-    "../src/docker-media-center/config/lidarr/lidarr.db")
+    "/home/dave/src/docker-media-center/config/lidarr/lidarr.db")
 music_path = os.environ.get('LIDARR_MUSIC_PATH', "/music")
 stop = False
 
@@ -74,7 +74,7 @@ def ffmpeg_reencode_mp3(path, artist, title, album, year, trackNumber, genre):
     print(" " + ffmpeg.replace(" -", "\n -").lstrip())
     print(" \"{path}\"".format(path=path))
     ffmpeg += " \"{path}.mp3\"".format(path=path.replace('"', '\\"'))
-    ffmpeg = "ffmpeg -i \"{path}\"".format(path=path) + ffmpeg
+    ffmpeg = "ffmpeg -y -i \"{path}\"".format(path=path) + ffmpeg
     print("")
 
     proc = subprocess.Popen(ffmpeg, shell=True, stdout=subprocess.DEVNULL)
@@ -250,12 +250,15 @@ def update_lidarr_db(artistName, albumName, title, trackNumber, year):
 
 
 def skip_youtube_download(link):
-    with open(".skip", "r") as file_object:
-        lines = file_object.readlines()
-        file_object.close()
-        for line in lines:
-            if link.strip() == line.strip():
-                return True
+    try:
+        with open(".skip", "r") as file_object:
+            lines = file_object.readlines()
+            file_object.close()
+            for line in lines:
+                if link.strip() == line.strip():
+                    return True
+    except Exception:
+        return False
     return False
 
 
