@@ -492,7 +492,7 @@ def iterate_records(records, totalRecords, record_counter):
 
 def iterate_missing():
     global stop
-    page_num = 6
+    page_num = 0
 
     def signal_handler(sig, frame):
         global stop
