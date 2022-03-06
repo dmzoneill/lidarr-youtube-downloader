@@ -1,0 +1,15 @@
+    Ffmpeg
+    ========================================
+
+        ffmpeg -i "{input}"
+            -metadata artist="{artist}"
+            -metadata year="{year}"
+            -metadata title="{title}"
+            -metadata album="{album}"
+            -metadata track="{track}"
+            -metadata genre="{genre}"
+            -hide_banner
+            -loglevel error
+            "{output}"
+
+        {result}

@@ -51,41 +51,53 @@ def rescan(path):
 
 
 def ffmpeg_reencode_mp3(path, artist, title, album, year, trackNumber, genre):
-    ffmpeg = " -metadata artist=\"{artist}\""
-    ffmpeg += " -metadata year=\"{year}\""
-    ffmpeg += " -metadata title=\"{title}\""
-    ffmpeg += " -metadata album=\"{album}\""
-    ffmpeg += " -metadata track=\"{trackNumber}\""
-    ffmpeg += " -metadata genre=\"{genre}\""
-    ffmpeg += " -hide_banner -loglevel error"
-    ffmpeg = ffmpeg.format(path=path.replace('"', '\\"'),
-                           artist=artist.replace('"', '\\"'),
-                           title=title.replace('"', '\\"'),
-                           year=year,
-                           album=album.replace('"', '\\"'),
-                           trackNumber=trackNumber,
-                           genre=genre.replace('"', '\\"'),
-                           )
+    template = ""
+    with open("view/ffmpeg") as file:
+        template = file.read()
 
-    print("")
-    print("ffmpeg")
-    print("=" * 40)
-    print("ffmpeg -i \"{path}\"".format(path=path))
-    print(" " + ffmpeg.replace(" -", "\n -").lstrip())
-    print(" \"{path}\"".format(path=path))
-    ffmpeg += " \"{path}.mp3\"".format(path=path.replace('"', '\\"'))
-    ffmpeg = "ffmpeg -y -i \"{path}\"".format(path=path) + ffmpeg
-    print("")
+    template.format(
+        input=path.replace('"', '\\"'),
+        artist=artist.replace('"', '\\"'),
+        title=title.replace('"', '\\"'),
+        year=year,
+        album=album.replace('"', '\\"'),
+        trackNumber=trackNumber,
+        genre=genre.replace('"', '\\"'),
+        output=path.replace('"', '\\"'),
+    )
 
-    proc = subprocess.Popen(ffmpeg, shell=True, stdout=subprocess.DEVNULL)
+    command = "ffmpeg -y -i \"{input}\""
+    command += " -metadata artist=\"{artist}\""
+    command += " -metadata year=\"{year}\""
+    command += " -metadata title=\"{title}\""
+    command += " -metadata album=\"{album}\""
+    command += " -metadata track=\"{trackNumber}\""
+    command += " -metadata genre=\"{genre}\""
+    command += " -hide_banner -loglevel error"
+    command += " \"{output}.mp3\""
+    command = command.format(
+        input=path.replace('"', '\\"'),
+        artist=artist.replace('"', '\\"'),
+        title=title.replace('"', '\\"'),
+        year=year,
+        album=album.replace('"', '\\"'),
+        trackNumber=trackNumber,
+        genre=genre.replace('"', '\\"'),
+        output=path.replace('"', '\\"'),
+    )
+
+    proc = subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
     proc.wait()
 
     if proc.returncode == 0:
         os.remove(path)
         os.rename(path + ".mp3", path)
-        print("Added mp3 tag")
+        template.format(result="ffmpeg added mp3 tag")
     else:
-        print("Failed adding tag")    
+        os.remove(path + ".mp3")
+        template.format(result="ffmpeg failed adding tag")
+
+    print(template)
 
 
 def update_mp3tag(
@@ -103,53 +115,60 @@ def update_mp3tag(
     filePath += albumName + " - " + title + ".mp3"
 
     file_exists = exists(filePath)
+    template = ""
+    with open("view/tagging") as file:
+        template = file.read()
 
-    if file_exists:
-        try:
+    if file_exists is False:
+        print(template.format(
+            result="File does not exist"
+        ))
+        return False
+
+    try:
+        audiofile = eyed3.load(filePath)
+
+        if audiofile is None:
+            ffmpeg_reencode_mp3(
+                filePath,
+                artistName,
+                title,
+                albumName,
+                year,
+                trackNumber,
+                genre)
             audiofile = eyed3.load(filePath)
-
             if audiofile is None:
-                ffmpeg_reencode_mp3(
-                    filePath,
-                    artistName,
-                    title,
-                    albumName,
-                    year,
-                    trackNumber,
-                    genre)
-                audiofile = eyed3.load(filePath)
-                if audiofile is None:
-                    print("Failed adding tag")
-                    print("")
-                    return False
+                print(template.format(
+                    result="Failed adding tag"
+                ))
+                return False
 
-            if audiofile.tag is None:
-                audiofile.initTag()
-                audiofile.tag.clear()
+        if audiofile.tag is None:
+            audiofile.initTag()
+            audiofile.tag.clear()
 
-                audiofile.tag.artist = artistName
-                audiofile.tag.album = albumName
-                audiofile.tag.title = title
-                audiofile.tag.track_num = trackNumber
-                if trackTotal:
-                    audiofile.tag.track_total = trackTotal
-                audiofile.tag.year = year
-                audiofile.tag.disc_num = disc
-                if discTotal:
-                    audiofile.tag.disc_total = discTotal
-                audiofile.tag.genre = genre
-                audiofile.tag.save()
-                print("Updated tag")
-                print("")
-                return True
-        except Exception as e:
-            print("Not updated, corrupt " + str(e))
-            print("")
-            os.remove(filePath)
-            return False
-    else:
-        print("File does not exist")
-        print("")
+            audiofile.tag.artist = artistName
+            audiofile.tag.album = albumName
+            audiofile.tag.title = title
+            audiofile.tag.track_num = trackNumber
+            if trackTotal:
+                audiofile.tag.track_total = trackTotal
+            audiofile.tag.year = year
+            audiofile.tag.disc_num = disc
+            if discTotal:
+                audiofile.tag.disc_total = discTotal
+            audiofile.tag.genre = genre
+            audiofile.tag.save()
+            print(template.format(
+                result="Updated tag"
+            ))
+            return True
+    except Exception as e:
+        print(template.format(
+            result="Not updated, corrupt " + str(e)
+        ))
+        os.remove(filePath)
         return False
 
 
@@ -283,6 +302,7 @@ def get_song(
         genre):
     best = 0
     bestLink = ""
+    bestTitle = ""
     searchFor = artistName + " - " + title
     path = music_path + "/" + artistName + "/" + albumName
     filePath = path + "/" + artistName + " - " + albumName
@@ -304,13 +324,15 @@ def get_song(
         rescan(path)
         return
 
-    print("youtube search")
-    print("=" * 40)
+    template = ""
+    result = ""
+    with open("view/youtube-search") as file:
+        template = file.read()
 
     videosSearch = VideosSearch(searchFor)
 
     if videosSearch is None:
-        print("Failed searching youtube")
+        result = "Failed searching youtube"
         return
 
     for song in videosSearch.result()['result']:
@@ -318,36 +340,43 @@ def get_song(
             if skip_youtube_download(song['link']) is False:
                 best = similar(searchFor, song['title'])
                 bestLink = song['link']
+                bestTitle = song['title']
 
-    print("Best match: " + str(best))
+    result = "Best match: " + str(best)
 
     if best < 0.8:
-        print("Unable to find " + searchFor)
+        result = "Unable to find " + searchFor
         return
+
+    result = "Downloading " + bestLink
+    print(template.format(
+        match=str(best),
+        title=bestTitle,
+        result=result)
+    )
 
     isExist = os.path.exists(path)
     if not isExist:
         os.makedirs(path)
 
+    template = ""
+    result = ""
+    with open("view/youtube-dl") as file:
+        template = file.read()
+
     downloader = "youtube-dl --no-progress -x"
     downloader += " --audio-format mp3 \"{link}\" -o "
     downloader = downloader.format(link=bestLink)
-
-    print("")
-    print("youtube-dl")
-    print("=" * 40)
-    print(downloader.replace(" -", "\n -"))
     downloader += "\"{trackname}\"".format(
         trackname=filePath.replace(
             '"',
             '\\"'))
-    print(" \"{trackname}\"".format(trackname=filePath.replace('"', '\\"')))
 
     proc = subprocess.Popen(downloader, shell=True, stdout=subprocess.PIPE)
     proc.wait()
-
+    
     if proc.returncode == 0:
-        print("Downloaded successfully")
+        result = "Downloaded successfully"
         tagged = update_mp3tag(
             artistName,
             albumName,
@@ -357,20 +386,26 @@ def get_song(
             year,
             disc,
             discTotal,
-            genre)        
+            genre)
         if tagged:
             update_lidarr_db(artistName, albumName, title, trackNumber, year)
             rescan(path)
         else:
             append_to_skip_file(bestLink)
     else:
+        result = "Download failed"
         append_to_skip_file(bestLink)
+
+    print(template.format(
+        link=bestLink,
+        output=filePath,
+        result=result)
+    )
 
 
 def get_missing():
     global stop
     page_num = 0
-    counter = 1
 
     def signal_handler(sig, frame):
         global stop
@@ -390,6 +425,12 @@ def get_missing():
         if response.status_code != 200:
             continue
         json = response.json()
+        totalRecords = json['totalRecords']
+        record_counter = 1 + (page_num * 50)
+
+        if totalRecords == 0:
+            time.sleep(3600)
+            continue
 
         if 'records' not in json or len(json['records']) == 0:
             page_num = 0
@@ -406,6 +447,8 @@ def get_missing():
                 continue
 
             tracks = tracksRequest.json()
+            track_total = len(tracks)
+            track_no = 1
 
             for track in tracks:
                 if stop:
@@ -413,46 +456,28 @@ def get_missing():
 
                 date = album['releaseDate'][0:4]
                 genre = album['genres'][0] if len(album['genres']) > 0 else ""
+                template = ""
+                with open("view/missing") as file:
+                    template = file.read()
+                missing_template = template
 
-                print("")
-                print(counter)
-                print("=" * 80)
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('Path'),
-                        val=album['artist']['path']))
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('Artist'),
-                        val=album['artist']['artistName']))
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('Album'),
-                        val=album['title']))
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('Track'),
-                        val=track['title']))
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('Genre'),
-                        val=genre))
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('Date'),
-                        val=date))
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('CD Count'),
-                        val=album['mediumCount']))
-                print(
-                    "{key}: {val}".format(
-                        key='{:15}'.format('CD No'),
-                        val=track['mediumNumber']))
-                print("{key}: {val}".format(key='{:15}'.format('Track No'),
-                      val=track['trackNumber'] + "/" + str(len(track))))
-
-                print("")
+                print(missing_template.format(
+                    record_total=str(totalRecords),
+                    record_num=str(record_counter),
+                    path=album['artist']['path'],
+                    artist=album['artist']['artistName'],
+                    track=track['title'],
+                    date=date,
+                    album=album['title'],
+                    trackNumber=track['trackNumber'],
+                    genre=genre,
+                    cd_count=album['mediumCount'],
+                    cd_num=track['mediumNumber'],
+                    track_no=track['trackNumber'],
+                    track_count=str(len(track)),
+                    track_counter=str(track_no),
+                    track_total=str(track_total)
+                ))
 
                 get_song(album['artist']['artistName'],
                          album['title'],
@@ -464,7 +489,8 @@ def get_missing():
                          album['mediumCount'],
                          genre)
 
-                counter += 1
+                track_no += 1
+            record_counter += 1
         page_num += 1
 
 

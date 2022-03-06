@@ -1,0 +1,12 @@
+Album: {record_num}/{record_total}   Track: {track_counter}/{track_total}
+================================================================================
+
+    Path           : {path}
+    Artist         : {artist}
+    Album          : {album}
+    Track          : {track}
+    Genre          : {genre}
+    Date           : {date}
+    CD Count       : {cd_count}
+    CD No          : {cd_num}
+    Track No       : {track_no}/{track_count}
