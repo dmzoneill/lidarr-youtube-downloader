@@ -11,5 +11,3 @@
             -hide_banner
             -loglevel error
             "{output}"
-
-        {result}
