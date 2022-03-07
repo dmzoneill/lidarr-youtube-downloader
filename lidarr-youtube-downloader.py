@@ -48,11 +48,19 @@ def output(**kwargs):
             print(template.format(**kwargs))
     except KeyError as error:
         print("    Key error, you need to fix the template")
-        print("    " + error)
+        print("    " + str(error))
         print("    " + template)
 
 
-def ffmpeg_reencode_mp3(path, artist, title, album, year, trackNumber, genre):
+def format(input):
+    stdio = input.decode('utf-8')       
+    stdio = stdio.splitlines()
+    stdio = [re.sub('^', '        ', x) for x in stdio]
+    stdio = "\n".join(stdio)
+    return stdio
+
+
+def ffmpeg_encode_mp3(path, artist, title, album, year, trackNumber, genre):
     command = "ffmpeg -y -i \"{input}\""
     command += " -metadata artist=\"{artist}\""
     command += " -metadata year=\"{year}\""
@@ -73,6 +81,18 @@ def ffmpeg_reencode_mp3(path, artist, title, album, year, trackNumber, genre):
         output=path.replace('"', '\\"'),
     )
 
+    output(
+        template="ffmpeg",
+        input=path.replace('"', '\\"'),
+        artist=artist.replace('"', '\\"'),
+        title=title.replace('"', '\\"'),
+        year=year,
+        album=album.replace('"', '\\"'),
+        track=trackNumber,
+        genre=genre.replace('"', '\\"'),
+        output=path.replace('"', '\\"')
+    )
+
     proc = subprocess.Popen(
         command,
         shell=True,
@@ -83,31 +103,15 @@ def ffmpeg_reencode_mp3(path, artist, title, album, year, trackNumber, genre):
     result = ""
 
     if proc.returncode == 0:
-        stdout = res[0].decode('utf-8')       
-        stdout = stdout.splitlines()
-        stdout = [re.sub('^', '        ', x) for x in stdout]
-        stdout = "\n".join(stdout)
         os.remove(path)
         os.rename(path + ".mp3", path)
-        result = "ffmpeg added mp3 tag" + "\n\n" + stdout
+        result = "ffmpeg added mp3 tag" + "\n\n" + format(res[0])
     else:
-        stderr = res[1].decode('utf-8')       
-        stderr = stderr.splitlines()
-        stderr = [re.sub('^', '        ', x) for x in stderr]
-        stderr = "\n".join(stderr)
         os.remove(path + ".mp3")
-        result = "ffmpeg failed adding tag" + "\n\n" + stderr
+        result = "ffmpeg failed adding tag" + "\n\n" + format(res[1])
 
     output(
-        template="ffmpeg",
-        input=path.replace('"', '\\"'),
-        artist=artist.replace('"', '\\"'),
-        title=title.replace('"', '\\"'),
-        year=year,
-        album=album.replace('"', '\\"'),
-        track=trackNumber,
-        genre=genre.replace('"', '\\"'),
-        output=path.replace('"', '\\"'),
+        template="ffmpeg_result",
         result=result.replace("\n", "        \n")
     )
 
@@ -139,7 +143,7 @@ def update_mp3tag(
         audiofile = eyed3.load(filePath)
 
         if audiofile is None:
-            ffmpeg_reencode_mp3(
+            ffmpeg_encode_mp3(
                 filePath,
                 artistName,
                 title,
@@ -283,6 +287,15 @@ def update_lidarr_db(artistName, albumName, title, trackNumber, year):
 
     con.close()
 
+    output(
+        template="lidarrdb_update",
+        result="Updated {artist} - {albumName} - {title}".format(
+            artist=artistName,
+            albumName=albumName,
+            title=title
+        )
+    )
+
 
 def skip_youtube_download(link):
     try:
@@ -360,7 +373,7 @@ def get_song(
         result = "Unable to find " + searchFor
         return
 
-    result = "Downloading " + bestLink
+    result = "Selected " + bestLink
 
     output(
         template="youtube-search",
@@ -381,6 +394,12 @@ def get_song(
             '"',
             '\\"'))
 
+    output(
+        template="youtube-dl",
+        link=bestLink,
+        output=filePath
+    )
+
     proc = subprocess.Popen(
         downloader,
         shell=True,
@@ -389,16 +408,9 @@ def get_song(
     res = proc.communicate()
 
     if proc.returncode == 0:
-        stdout = res[0].decode('utf-8')       
-        stdout = stdout.splitlines()
-        stdout = [re.sub('^', '        ', x) for x in stdout]
-        stdout = "\n".join(stdout)
-
         output(
-            template="youtube-dl",
-            link=bestLink,
-            output=filePath,
-            result="Downloaded successfully" + "\n\n" + stdout
+            template="youtube-dl_result",
+            result="Downloaded successfully" + "\n\n" + format(res[0])
         )
 
         tagged = update_mp3tag(
@@ -419,15 +431,9 @@ def get_song(
         else:
             append_to_skip_file(bestLink)
     else:
-        stderr = res[1].decode('utf-8')       
-        stderr = stderr.splitlines()
-        stderr = [re.sub('^', '        ', x) for x in stderr]
-        stderr = "\n".join(stderr)
         output(
-            template="youtube-dl",
-            link=bestLink,
-            output=filePath,
-            result="Download failed" + "\n\n" + stderr
+            template="youtube-dl_result",
+            result="Download failed" + "\n\n" + format(res[1])
         )
         append_to_skip_file(bestLink)
 
