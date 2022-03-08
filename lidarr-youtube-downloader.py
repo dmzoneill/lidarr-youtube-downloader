@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import eyed3
 import os
 import re
@@ -189,7 +190,7 @@ def update_mp3tag(
         return False
 
 
-def add_lidarr_trackfile(cur, album_id, filePath, artistName, albumName):
+def add_lidarr_trackfile(con, cur, album_id, filePath, artistName, albumName):
     # insert
     filesize = os.path.getsize(filePath)
     taglib = "{\"quality\": 2, \"revision\": {\"version\": 1, "
@@ -215,6 +216,7 @@ def add_lidarr_trackfile(cur, album_id, filePath, artistName, albumName):
          datetime.now(),
          filePath,
          ))
+    con.commit()
     output(
         template="lidarr",
         result="Updated the db"
@@ -222,10 +224,11 @@ def add_lidarr_trackfile(cur, album_id, filePath, artistName, albumName):
     return cur.lastrowid
 
 
-def set_lidarr_track_trackfield(cur, TrackFileId, track_id):
+def set_lidarr_track_trackfield(con, cur, TrackFileId, track_id):
     # update
     cur.execute("UPDATE Tracks SET TrackFileId=? WHERE id = ?",
                 (track_id, TrackFileId,))
+    con.commit()
 
 
 def get_lidarr_album_id(cur, albumName, year):
@@ -251,19 +254,23 @@ def get_lidarr_trackfile_id(cur, filePath):
     return result[0][0]
 
 
-def get_lidarr_track_id(cur, title, trackNumber):
+def get_lidarr_track_ids(cur, artist, album, track):
+    sql = """
+        select Tracks.Id from ArtistMetadata, Artists, Tracks, Albums, AlbumReleases
+        where ArtistMetadata.id = Artists.ArtistMetadataId
+        and Artists.ArtistMetadataId = Tracks.ArtistMetadataId
+        and Tracks.AlbumReleaseId = AlbumReleases.Id
+        and Albums.id = AlbumReleases.AlbumId
+        and ArtistMetadata.Name = ?
+        and AlbumReleases.Title = ?
+        and Tracks.Title = ?
+    """
     # get track id
-    cur.execute(
-        "SELECT id FROM Tracks WHERE Title LIKE ? and TrackNumber=? LIMIT 1;",
-        ('%' +
-         title +
-         '%',
-         trackNumber,
-         ))
+    cur.execute(sql,(artist, album, track, ))
     result = cur.fetchall()
     if len(result) == 0:
         return -1
-    return result[0][0]
+    return [X[0] for X in result]
 
 
 def update_lidarr_db(artistName, albumName, title, trackNumber, year):
@@ -278,12 +285,13 @@ def update_lidarr_db(artistName, albumName, title, trackNumber, year):
     trackfile_id = get_lidarr_trackfile_id(cur, filePath)
 
     if trackfile_id == -1:
-        add_lidarr_trackfile(cur, album_id, filePath, artistName, albumName)
+        add_lidarr_trackfile(con, cur, album_id, filePath, artistName, albumName)
 
-    track_id = get_lidarr_track_id(cur, title, trackNumber)
+    track_ids = get_lidarr_track_ids(cur, artistName, albumName, title)
     trackfile_id = get_lidarr_trackfile_id(cur, filePath)
 
-    set_lidarr_track_trackfield(cur, trackfile_id, track_id)
+    for x in track_ids:
+        set_lidarr_track_trackfield(con, cur, trackfile_id, x)
 
     con.close()
 
@@ -438,7 +446,7 @@ def get_song(
         append_to_skip_file(bestLink)
 
 
-def iterate_tracks(tracks, album, totalRecords, record_counter):
+def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
     track_no = 1
     track_total = len(tracks)
 
@@ -448,6 +456,10 @@ def iterate_tracks(tracks, album, totalRecords, record_counter):
 
         date = album['releaseDate'][0:4]
         genre = album['genres'][0] if len(album['genres']) > 0 else ""
+
+        if artist_filter is not None:
+            if SequenceMatcher(None, artist_filter, album['artist']['artistName']).ratio() < 0.8:
+                return
 
         output(
             template="missing",
@@ -483,7 +495,7 @@ def iterate_tracks(tracks, album, totalRecords, record_counter):
         track_no += 1
 
 
-def iterate_records(records, totalRecords, record_counter):
+def iterate_records(records, totalRecords, record_counter, artist_filter):
     for album in records:
         url = endpoint + "/api/v1/track?artistid=" + str(album['artist']['id'])
         url += "&albumid=" + str(album['id'])
@@ -492,11 +504,11 @@ def iterate_records(records, totalRecords, record_counter):
         if tracksRequest.status_code != 200:
             continue
 
-        iterate_tracks(tracksRequest.json(), album, totalRecords, record_counter)
+        iterate_tracks(tracksRequest.json(), album, totalRecords, record_counter, artist_filter)
         record_counter += 1
 
 
-def iterate_missing():
+def iterate_missing(artist_filter):
     global stop
     page_num = 0
 
@@ -527,9 +539,13 @@ def iterate_missing():
             page_num = 0
             time.sleep(60)
 
-        iterate_records(json['records'], totalRecords, record_counter)
+        iterate_records(json['records'], totalRecords, record_counter, artist_filter)
         page_num += 1
 
 
 if __name__ == "__main__":
-    iterate_missing()
+    parser = argparse.ArgumentParser(description='Download missing tracks')
+    parser.add_argument('--artist', help='artist to filter by')
+
+    args = parser.parse_args()
+    iterate_missing(args.artist if 'artist' in args else None)
