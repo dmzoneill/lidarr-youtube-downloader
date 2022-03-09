@@ -290,6 +290,10 @@ def update_lidarr_db(artistName, albumName, title, trackNumber, year):
     track_ids = get_lidarr_track_ids(cur, artistName, albumName, title)
     trackfile_id = get_lidarr_trackfile_id(cur, filePath)
 
+    if track_ids == -1:
+        con.close()
+        return
+
     for x in track_ids:
         set_lidarr_track_trackfield(con, cur, trackfile_id, x)
 

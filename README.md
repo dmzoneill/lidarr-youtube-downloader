@@ -43,51 +43,61 @@ python3 lidarr-youtube-downloader.py
 
 # Sample output
 ```
-....
-........
-3706
+Album: 34/545   Track: 71/226
 ================================================================================
-Path           : /music/The Box Tops
-Artist         : The Box Tops
-Album          : Cry Like a Baby
-Track          : I'm the One for You
-Genre          : Pop
-Date           : 1968
-CD Count       : 1
-CD No          : 1
-Track No       : 3/12
 
-youtube search
-========================================
-Best match: 0.927536231884058
+    Path           : /music/The Beatles
+    Artist         : The Beatles
+    Album          : The Beatles
+    Track          : Norwegian Wood (This Bird Has Flown)
+    Genre          : Acoustic Rock
+    Date           : 1988
+    CD Count       : 16
+    CD No          : 6
+    Track No       : 2/12
 
-youtube-dl
-========================================
-youtube-dl
- --no-progress
- -x
- --audio-format mp3 "https://www.youtube.com/watch?v=laMH6ZdnOpQ"
- -o 
- "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - I'm the One for You.mp3"
+    Youtube search
+    ========================================
+        
+        Best title: The Beatles - Norwegian Wood (This Bird Has Flown)
+        Best match: 1.0
+        
+        Selected https://www.youtube.com/watch?v=W15_1kE08Gc
 
-ffmpeg
-========================================
-ffmpeg -i "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - I'm the One for You.mp3"
- -metadata artist="The Box Tops"
- -metadata year="1968"
- -metadata title="I'm the One for You"
- -metadata album="Cry Like a Baby"
- -metadata track="3"
- -metadata genre="Pop"
- -hide_banner
- -loglevel error
- "/music/The Box Tops/Cry Like a Baby/The Box Tops - Cry Like a Baby - I'm the One for You.mp3"
+    Youtube-dl
+    ========================================
 
-Downloaded successfully
-Added mp3 tag
-Updated the db
+        youtube-dl
+            --no-progress
+            -x
+            --audio-format mp3 "https://www.youtube.com/watch?v=W15_1kE08Gc"
+            -o 
+            "/music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3"
 
-.....
-.......
+
+        Downloaded successfully
+
+        [youtube] W15_1kE08Gc: Downloading webpage
+        [youtube] W15_1kE08Gc: Downloading MPD manifest
+        [download] Destination: /music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3
+        [download] Download completed
+        [ffmpeg] Correcting container in "/music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3"
+        [ffmpeg] Post-process file /music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3 exists, skipping
+
+    Ffmpeg
+    ========================================
+
+        ffmpeg -i "/music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3"
+            -metadata artist="The Beatles"
+            -metadata year="1988"
+            -metadata title="Norwegian Wood (This Bird Has Flown)"
+            -metadata album="The Beatles"
+            -metadata track="2"
+            -metadata genre="Acoustic Rock"
+            -hide_banner
+            -loglevel error
+            "/music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3"
+
+        ffmpeg added mp3 tag      
 
 ```
