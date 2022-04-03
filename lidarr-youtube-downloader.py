@@ -11,8 +11,8 @@ import sys
 import time
 from datetime import datetime
 from difflib import SequenceMatcher
+import numpy as np
 from os.path import exists
-from pprint import pprint
 from youtubesearchpython import VideosSearch
 
 
@@ -24,6 +24,24 @@ lidar_db = os.environ.get(
 music_path = os.environ.get('LIDARR_MUSIC_PATH', "/music")
 stop = False
 headers = {"X-Api-Key": api_key}
+seen = []
+
+
+def save_seen():
+    global seen
+
+    with open("seen", "w+") as fp:
+        fp.writelines("\n".join(seen))
+
+
+def load_seen():
+    global seen
+
+    try:
+        with open("seen", "r") as fp:
+            seen = fp.read().splitlines()
+    except:
+        seen = []
 
 
 def rescan(path):
@@ -341,6 +359,12 @@ def get_song(
         disc,
         discTotal,
         genre):
+
+    artistName = artistName.replace('/', '+')
+    title = title.replace('/', '')
+    albumName = albumName.replace('/', '+')
+    albumName = albumName.replace('\\', '')
+
     best = 0
     bestLink = ""
     bestTitle = ""
@@ -365,19 +389,24 @@ def get_song(
         rescan(path)
         return
 
+
     result = ""
-    videosSearch = VideosSearch(searchFor)
 
-    if videosSearch is None:
-        result = "Failed searching youtube"
+    try:
+        videosSearch = VideosSearch(searchFor)
+
+        if videosSearch is None:
+            result = "Failed searching youtube"
+            return
+
+        for song in videosSearch.result()['result']:
+            if SequenceMatcher(None, searchFor, song['title']).ratio() > best:
+                if skip_youtube_download(song['link']) is False:
+                    best = SequenceMatcher(None, searchFor, song['title']).ratio()
+                    bestLink = song['link']
+                    bestTitle = song['title']
+    except:
         return
-
-    for song in videosSearch.result()['result']:
-        if SequenceMatcher(None, searchFor, song['title']).ratio() > best:
-            if skip_youtube_download(song['link']) is False:
-                best = SequenceMatcher(None, searchFor, song['title']).ratio()
-                bestLink = song['link']
-                bestTitle = song['title']
 
     result = "Best match: " + str(best)
 
@@ -451,6 +480,7 @@ def get_song(
 
 
 def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
+    global seen
     track_no = 1
     track_total = len(tracks)
 
@@ -463,7 +493,15 @@ def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
 
         if artist_filter is not None:
             if SequenceMatcher(None, artist_filter, album['artist']['artistName']).ratio() < 0.8:
-                return
+                continue
+
+        full_trackname = album['artist']['artistName']
+        full_trackname += " - " + album['title'] + " - "
+        full_trackname += track['title']
+        
+        if full_trackname in seen:
+            track_no += 1
+            continue
 
         output(
             template="missing",
@@ -496,6 +534,9 @@ def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
             genre
         )
 
+        seen.append(full_trackname)
+        save_seen()
+
         track_no += 1
 
 
@@ -512,7 +553,7 @@ def iterate_records(records, totalRecords, record_counter, artist_filter):
         record_counter += 1
 
 
-def iterate_missing(artist_filter):
+def iterate_missing(artist_filter, iterative):
     global stop
     page_num = 0
 
@@ -524,6 +565,9 @@ def iterate_missing(artist_filter):
     signal.signal(signal.SIGINT, signal_handler)
 
     while True:
+        if stop:
+            sys.exit(0)
+
         url = endpoint + "/api/v1/wanted/missing?page="
         url += str(page_num) + "&pageSize=50&sortDirection=descending"
         response = requests.get(url, headers=headers)
@@ -536,11 +580,17 @@ def iterate_missing(artist_filter):
         record_counter = 1 + (page_num * 50)
 
         if totalRecords == 0:
+            if iterative:
+                stop = True
             time.sleep(3600)
+            print("No more records, waiting 1 hr")
             continue
 
         if 'records' not in json or len(json['records']) == 0:
+            if iterative:
+                stop = True
             page_num = 0
+            print("Sleeping 60 seconds")
             time.sleep(60)
 
         iterate_records(json['records'], totalRecords, record_counter, artist_filter)
@@ -548,8 +598,12 @@ def iterate_missing(artist_filter):
 
 
 if __name__ == "__main__":
+    load_seen()
     parser = argparse.ArgumentParser(description='Download missing tracks')
     parser.add_argument('--artist', help='artist to filter by')
+    parser.add_argument('--stop', help='Stop after first run')
 
     args = parser.parse_args()
-    iterate_missing(args.artist if 'artist' in args else None)
+    artist_filter = args.artist if 'artist' in args else None
+    iterative = True if 'stop' in args else False
+    iterate_missing(artist_filter, iterative)
