@@ -18,8 +18,8 @@ from pprint import pprint
 updated = 0
 
 lidar_db = os.environ.get(
-    'LIDARR_DB',
-    "/home/dave/src/docker-media-center/config/lidarr/lidarr.db")
+    "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
+)
 
 
 def get_lidarr_track_ids(cur, artist_name, album_name, track_name):
@@ -34,7 +34,14 @@ def get_lidarr_track_ids(cur, artist_name, album_name, track_name):
         and AlbumReleases.Title = ?
         and Tracks.Title = ?
     """
-    cur.execute(sql, (artist_name, album_name, track_name,))
+    cur.execute(
+        sql,
+        (
+            artist_name,
+            album_name,
+            track_name,
+        ),
+    )
     result = cur.fetchall()
     if len(result) == 0:
         return -1
@@ -54,7 +61,14 @@ def get_lidarr_album_id(cur, artist_name, album_name, track_name):
         and Tracks.Title = ?
         limit 1    
     """
-    cur.execute(sql, (artist_name, album_name, track_name,))
+    cur.execute(
+        sql,
+        (
+            artist_name,
+            album_name,
+            track_name,
+        ),
+    )
     result = cur.fetchall()
     if len(result) == 0:
         return -1
@@ -63,15 +77,25 @@ def get_lidarr_album_id(cur, artist_name, album_name, track_name):
 
 def set_lidarr_track_trackfield(con, cur, TrackFileId, track_id):
     # update
-    cur.execute("UPDATE Tracks SET TrackFileId=? WHERE id = ?",
-                (TrackFileId, track_id,))
+    cur.execute(
+        "UPDATE Tracks SET TrackFileId=? WHERE id = ?",
+        (
+            TrackFileId,
+            track_id,
+        ),
+    )
     con.commit()
 
 
 def set_lidarr_trackfile_album_id(con, cur, AlbumId, Id):
     # update
-    cur.execute("UPDATE TrackFiles SET AlbumId=? WHERE id=?",
-                (AlbumId, Id,))
+    cur.execute(
+        "UPDATE TrackFiles SET AlbumId=? WHERE id=?",
+        (
+            AlbumId,
+            Id,
+        ),
+    )
     con.commit()
 
 
@@ -82,7 +106,7 @@ def lidarr_match_fieldtrack_id(con, cur, id, path):
     artist = parts[0].strip()
     album = parts[1].strip()
     track = parts[2].strip().replace(".mp3", "")
- 
+
     track_ids = get_lidarr_track_ids(cur, artist, album, track)
 
     print(artist)
@@ -117,7 +141,7 @@ def lidarr_match_album_id(con, cur, id, path):
         track = parts[3].strip()
 
     track = track.replace(".mp3", "").replace(".flac", "")
- 
+
     album_id = get_lidarr_album_id(cur, artist, album, track)
 
     print(artist)
@@ -139,12 +163,14 @@ def iterate_unmapped():
     con.set_trace_callback(print)
 
     updated = 0
-    cur.execute("SELECT * FROM TrackFiles WHERE id NOT IN (SELECT TrackFileId FROM Tracks)")
+    cur.execute(
+        "SELECT * FROM TrackFiles WHERE id NOT IN (SELECT TrackFileId FROM Tracks)"
+    )
     result = cur.fetchall()
     if len(result) == 0:
         con.close()
-        return 
-    
+        return
+
     for row in result:
         lidarr_match_fieldtrack_id(con, cur, row[0], row[9])
 
@@ -156,8 +182,8 @@ def iterate_unmapped():
     result = cur.fetchall()
     if len(result) == 0:
         con.close()
-        return 
-    
+        return
+
     for row in result:
         lidarr_match_album_id(con, cur, row[0], row[9])
 
