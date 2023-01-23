@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: lidarr-youtube-downloader
-Version: 0.3.2
+Version: 0.3.4
 Summary: 
 Home-page: https://github.com/dmzoneill/lidarr-youtube-downloader
 Author: David O Neill
@@ -10,9 +10,13 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.8
 Classifier: Programming Language :: Python :: 3.9
 Requires-Dist: requests
-Requires-Dist: typer
+Requires-Dist: youtubesearchpython
+Requires-Dist: eyed3
+Requires-Dist: requests
 Project-URL: Repository, https://github.com/dmzoneill/lidarr-youtube-downloader
 Description-Content-Type: text/markdown
+
+
 
 # Lidarr youtube downloader
 This tools iterates your missing tracks in lidarr, and attempts to download them from youtube.
