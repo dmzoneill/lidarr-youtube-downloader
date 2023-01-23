@@ -2,9 +2,9 @@
 import os
 import re
 import signal
+import sqlite3
 import subprocess
 import sys
-import sqlite3
 import time
 from datetime import datetime
 from difflib import SequenceMatcher
