@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 import argparse
-import eyed3
 import os
 import re
-import requests
 import signal
-import subprocess
 import sqlite3
+import subprocess
 import sys
 import time
 from datetime import datetime
 from difflib import SequenceMatcher
-import numpy as np
 from os.path import exists
+
+import eyed3
+import numpy as np
+import requests
 from youtubesearchpython import VideosSearch
 
 

@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-from email.mime import audio
-import eyed3
 import os
 import re
-import requests
 import signal
 import subprocess
-import sqlite3
 import sys
 import time
 from datetime import datetime
 from difflib import SequenceMatcher
+from email.mime import audio
 from os.path import exists
 from pprint import pprint
-
+ 
+import eyed3
+import requests
 
 updated = 0
 
