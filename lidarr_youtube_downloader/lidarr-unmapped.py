@@ -4,13 +4,14 @@ import re
 import signal
 import subprocess
 import sys
+import sqlite3
 import time
 from datetime import datetime
 from difflib import SequenceMatcher
 from email.mime import audio
 from os.path import exists
 from pprint import pprint
- 
+
 import eyed3
 import requests
 
