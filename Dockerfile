@@ -7,4 +7,5 @@ RUN chmod +x /usr/bin/youtube-dl
 RUN pip3 install eyed3 requests numpy youtube-search-python
 COPY view /view
 COPY lidarr-youtube-downloader.py /
+COPY view/ /view
 CMD ["python3", "/lidarr-youtube-downloader.py"]
