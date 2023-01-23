@@ -10,7 +10,7 @@ Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.8
 Classifier: Programming Language :: Python :: 3.9
 Requires-Dist: requests
-Requires-Dist: youtubesearchpython
+Requires-Dist: youtube-search-python
 Requires-Dist: eyed3
 Requires-Dist: requests
 Project-URL: Repository, https://github.com/dmzoneill/lidarr-youtube-downloader
