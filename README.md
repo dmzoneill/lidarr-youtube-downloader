@@ -6,7 +6,7 @@ Look for missing tracks in your lidarr library and download them from youtube.
 
 ### docker run
 ```
-docker build -t lys .
+docker build -t lyd .
 # you need to be careful that the path matches the path that lidarr knows
 docker run \
    -v /path/to/music:/path/to/music \
@@ -15,7 +15,7 @@ docker run \
    -e LIDARR_API_KEY="771de60596e946f6b3e5e6f5fb6fd729" \
    -e LIDARR_DB="/path/to/lidarr/lidarr.db" \
    -e LIDARR_MUSIC_PATH="/music" \
-   --name lys lys 
+   --name lyd lyd 
 ```
 
 # Local Usage
