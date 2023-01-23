@@ -16,7 +16,6 @@ import numpy as np
 import requests
 from youtubesearchpython import VideosSearch
 
-
 endpoint = os.environ.get("LIDARR_URL", "http://127.0.0.1:8686")
 api_key = os.environ.get("LIDARR_API_KEY", "771de60596e946f6b3e5e6f5fb6fd729")
 lidar_db = os.environ.get(
