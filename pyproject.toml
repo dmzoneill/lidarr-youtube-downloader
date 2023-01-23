@@ -10,7 +10,7 @@ authors = ["David O Neill <dmz.oneill@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 requests = "*"
-youtubesearchpython = "*"
+youtube-search-python = "*"
 eyed3 = "*"
 
 [tool.poetry.dev-dependencies]

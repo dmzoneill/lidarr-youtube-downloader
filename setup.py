@@ -5,7 +5,7 @@ packages = ["lidarr_youtube_downloader"]
 
 package_data = {"": ["*"]}
 
-install_requires = ["requests", "youtubesearchpython", "eyed3"]
+install_requires = ["requests", "youtube-search-python", "eyed3"]
 
 entry_points = {"console_scripts": ["gep = lidarr_youtube_downloader.cli:app"]}
 
