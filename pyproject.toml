@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "lidarr-youtube-downloader"
+version = "0.3.2"
+description = ""
+readme = "README.md"
+repository = "https://github.com/dmzoneill/lidarr-youtube-downloader"
+authors = ["David O Neill <dmz.oneill@gmail.com>"]
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+requests = "*"
+typer = "*"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.0.2"
+
+[tool.poetry.scripts]
+gep = "lidarr_youtube_downloader.cli:app"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+
