@@ -16,12 +16,12 @@ from os.path import exists
 from youtubesearchpython import VideosSearch
 
 
-endpoint = os.environ.get('LIDARR_URL', "http://127.0.0.1:8686")
-api_key = os.environ.get('LIDARR_API_KEY', "771de60596e946f6b3e5e6f5fb6fd729")
+endpoint = os.environ.get("LIDARR_URL", "http://127.0.0.1:8686")
+api_key = os.environ.get("LIDARR_API_KEY", "771de60596e946f6b3e5e6f5fb6fd729")
 lidar_db = os.environ.get(
-    'LIDARR_DB',
-    "/home/dave/src/docker-media-center/config/lidarr/lidarr.db")
-music_path = os.environ.get('LIDARR_MUSIC_PATH', "/music")
+    "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
+)
+music_path = os.environ.get("LIDARR_MUSIC_PATH", "/music")
 stop = False
 headers = {"X-Api-Key": api_key}
 seen = []
@@ -45,24 +45,17 @@ def load_seen():
 
 
 def rescan(path):
-    data = {
-        'name': 'RescanFolders',
-        'folders': [path]
-    }
+    data = {"name": "RescanFolders", "folders": [path]}
     requests.post(endpoint + "/api/v1/command", json=data, headers=headers)
 
-    data = {
-        'name': 'DownloadedAlbumsScan',
-        'path': path,
-        'folders': [path]
-    }
+    data = {"name": "DownloadedAlbumsScan", "path": path, "folders": [path]}
     requests.post(endpoint + "/api/v1/command", json=data, headers=headers)
 
 
 def output(**kwargs):
     template = ""
     try:
-        with open("view/" + kwargs['template']) as file:
+        with open("view/" + kwargs["template"]) as file:
             template = file.read()
             print(template.format(**kwargs))
     except KeyError as error:
@@ -72,23 +65,23 @@ def output(**kwargs):
 
 
 def format(input):
-    stdio = input.decode('utf-8')       
+    stdio = input.decode("utf-8")
     stdio = stdio.splitlines()
-    stdio = [re.sub('^', '        ', x) for x in stdio]
+    stdio = [re.sub("^", "        ", x) for x in stdio]
     stdio = "\n".join(stdio)
     return stdio
 
 
 def ffmpeg_encode_mp3(path, artist, title, album, year, trackNumber, genre):
-    command = "ffmpeg -y -i \"{input}\""
-    command += " -metadata artist=\"{artist}\""
-    command += " -metadata year=\"{year}\""
-    command += " -metadata title=\"{title}\""
-    command += " -metadata album=\"{album}\""
-    command += " -metadata track=\"{trackNumber}\""
-    command += " -metadata genre=\"{genre}\""
+    command = 'ffmpeg -y -i "{input}"'
+    command += ' -metadata artist="{artist}"'
+    command += ' -metadata year="{year}"'
+    command += ' -metadata title="{title}"'
+    command += ' -metadata album="{album}"'
+    command += ' -metadata track="{trackNumber}"'
+    command += ' -metadata genre="{genre}"'
     command += " -hide_banner"
-    command += " \"{output}.mp3\""
+    command += ' "{output}.mp3"'
     command = command.format(
         input=path.replace('"', '\\"'),
         artist=artist.replace('"', '\\"'),
@@ -109,14 +102,12 @@ def ffmpeg_encode_mp3(path, artist, title, album, year, trackNumber, genre):
         album=album.replace('"', '\\"'),
         track=trackNumber,
         genre=genre.replace('"', '\\"'),
-        output=path.replace('"', '\\"')
+        output=path.replace('"', '\\"'),
     )
 
     proc = subprocess.Popen(
-        command,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+        command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     res = proc.communicate()
 
     result = ""
@@ -129,22 +120,12 @@ def ffmpeg_encode_mp3(path, artist, title, album, year, trackNumber, genre):
         os.remove(path + ".mp3")
         result = "ffmpeg failed adding tag" + "\n\n" + format(res[1])
 
-    output(
-        template="ffmpeg_result",
-        result=result.replace("\n", "        \n")
-    )
+    output(template="ffmpeg_result", result=result.replace("\n", "        \n"))
 
 
 def update_mp3tag(
-        artistName,
-        albumName,
-        title,
-        trackNumber,
-        trackTotal,
-        year,
-        disc,
-        discTotal,
-        genre):
+    artistName, albumName, title, trackNumber, trackTotal, year, disc, discTotal, genre
+):
     path = music_path + "/" + artistName + "/" + albumName
     filePath = path + "/" + artistName + " - "
     filePath += albumName + " - " + title + ".mp3"
@@ -152,10 +133,7 @@ def update_mp3tag(
     file_exists = exists(filePath)
 
     if file_exists is False:
-        output(
-            template="tagging",
-            result="File does not exist"
-        )
+        output(template="tagging", result="File does not exist")
         return False
 
     try:
@@ -163,19 +141,11 @@ def update_mp3tag(
 
         if audiofile is None:
             ffmpeg_encode_mp3(
-                filePath,
-                artistName,
-                title,
-                albumName,
-                year,
-                trackNumber,
-                genre)
+                filePath, artistName, title, albumName, year, trackNumber, genre
+            )
             audiofile = eyed3.load(filePath)
             if audiofile is None:
-                output(
-                    template="tagging",
-                    result="Failed adding tag"
-                )
+                output(template="tagging", result="Failed adding tag")
                 return False
 
         if audiofile.tag is None:
@@ -194,16 +164,10 @@ def update_mp3tag(
                 audiofile.tag.disc_total = discTotal
             audiofile.tag.genre = genre
             audiofile.tag.save()
-            output(
-                template="tagging",
-                result="Updated tag"
-            )
+            output(template="tagging", result="Updated tag")
             return True
     except Exception as e:
-        output(
-            template="tagging",
-            result="Not updated, corrupt " + str(e)
-        )
+        output(template="tagging", result="Not updated, corrupt " + str(e))
         os.remove(filePath)
         return False
 
@@ -211,12 +175,12 @@ def update_mp3tag(
 def add_lidarr_trackfile(con, cur, album_id, filePath, artistName, albumName):
     # insert
     filesize = os.path.getsize(filePath)
-    taglib = "{\"quality\": 2, \"revision\": {\"version\": 1, "
-    taglib += "\"real\": 0, \"isRepack\": false }, "
-    taglib += "\"qualityDetectionSource\": \"tagLib\"}"
-    quality = "{\"audioFormat\": \"MPEG Version 1 Audio, Layer 3 VBR\","
-    quality += "\"audioBitrate\": 154, \"audioChannels\": 2, \"audioBits\": 0,"
-    quality += "\"audioSampleRate\": 44100}"
+    taglib = '{"quality": 2, "revision": {"version": 1, '
+    taglib += '"real": 0, "isRepack": false }, '
+    taglib += '"qualityDetectionSource": "tagLib"}'
+    quality = '{"audioFormat": "MPEG Version 1 Audio, Layer 3 VBR",'
+    quality += '"audioBitrate": 154, "audioChannels": 2, "audioBits": 0,'
+    quality += '"audioSampleRate": 44100}'
     screenname = artistName + " " + albumName
 
     query = "INSERT INTO TrackFiles "
@@ -225,39 +189,42 @@ def add_lidarr_trackfile(con, cur, album_id, filePath, artistName, albumName):
     query += " VALUES(?, ?, ?, ?, ?, NULL, ?, ?, ?)"
     cur.execute(
         query,
-        (album_id,
-         taglib,
-         filesize,
-         screenname,
-         datetime.now(),
-         quality,
-         datetime.now(),
-         filePath,
-         ))
-    con.commit()
-    output(
-        template="lidarr",
-        result="Updated the db"
+        (
+            album_id,
+            taglib,
+            filesize,
+            screenname,
+            datetime.now(),
+            quality,
+            datetime.now(),
+            filePath,
+        ),
     )
+    con.commit()
+    output(template="lidarr", result="Updated the db")
     return cur.lastrowid
 
 
 def set_lidarr_track_trackfield(con, cur, TrackFileId, track_id):
     # update
-    cur.execute("UPDATE Tracks SET TrackFileId=? WHERE id = ?",
-                (track_id, TrackFileId,))
+    cur.execute(
+        "UPDATE Tracks SET TrackFileId=? WHERE id = ?",
+        (
+            track_id,
+            TrackFileId,
+        ),
+    )
     con.commit()
 
 
 def get_lidarr_album_id(cur, albumName, year):
     cur.execute(
         "SELECT id FROM Albums WHERE Title LIKE ? and ReleaseDate like ?",
-        ('%' +
-         albumName +
-         '%',
-         year +
-         '%',
-         ))
+        (
+            "%" + albumName + "%",
+            year + "%",
+        ),
+    )
     result = cur.fetchall()
     if len(result) == 0:
         return -1
@@ -284,7 +251,14 @@ def get_lidarr_track_ids(cur, artist, album, track):
         and Tracks.Title = ?
     """
     # get track id
-    cur.execute(sql,(artist, album, track, ))
+    cur.execute(
+        sql,
+        (
+            artist,
+            album,
+            track,
+        ),
+    )
     result = cur.fetchall()
     if len(result) == 0:
         return -1
@@ -320,10 +294,8 @@ def update_lidarr_db(artistName, albumName, title, trackNumber, year):
     output(
         template="lidarrdb_update",
         result="Updated {artist} - {albumName} - {title}".format(
-            artist=artistName,
-            albumName=albumName,
-            title=title
-        )
+            artist=artistName, albumName=albumName, title=title
+        ),
     )
 
 
@@ -350,20 +322,13 @@ def append_to_skip_file(link):
 
 
 def get_song(
-        artistName,
-        albumName,
-        title,
-        trackNumber,
-        trackTotal,
-        year,
-        disc,
-        discTotal,
-        genre):
+    artistName, albumName, title, trackNumber, trackTotal, year, disc, discTotal, genre
+):
 
-    artistName = artistName.replace('/', '+')
-    title = title.replace('/', '')
-    albumName = albumName.replace('/', '+')
-    albumName = albumName.replace('\\', '')
+    artistName = artistName.replace("/", "+")
+    title = title.replace("/", "")
+    albumName = albumName.replace("/", "+")
+    albumName = albumName.replace("\\", "")
 
     best = 0
     bestLink = ""
@@ -384,11 +349,11 @@ def get_song(
             year,
             disc,
             discTotal,
-            genre)
+            genre,
+        )
         update_lidarr_db(artistName, albumName, title, trackNumber, year)
         rescan(path)
         return
-
 
     result = ""
 
@@ -399,12 +364,12 @@ def get_song(
             result = "Failed searching youtube"
             return
 
-        for song in videosSearch.result()['result']:
-            if SequenceMatcher(None, searchFor, song['title']).ratio() > best:
-                if skip_youtube_download(song['link']) is False:
-                    best = SequenceMatcher(None, searchFor, song['title']).ratio()
-                    bestLink = song['link']
-                    bestTitle = song['title']
+        for song in videosSearch.result()["result"]:
+            if SequenceMatcher(None, searchFor, song["title"]).ratio() > best:
+                if skip_youtube_download(song["link"]) is False:
+                    best = SequenceMatcher(None, searchFor, song["title"]).ratio()
+                    bestLink = song["link"]
+                    bestTitle = song["title"]
     except:
         return
 
@@ -416,42 +381,28 @@ def get_song(
 
     result = "Selected " + bestLink
 
-    output(
-        template="youtube-search",
-        match=str(best),
-        title=bestTitle,
-        result=result
-    )
+    output(template="youtube-search", match=str(best), title=bestTitle, result=result)
 
     isExist = os.path.exists(path)
     if not isExist:
         os.makedirs(path)
 
     downloader = "youtube-dl --no-progress -x"
-    downloader += " --audio-format mp3 \"{link}\" -o "
+    downloader += ' --audio-format mp3 "{link}" -o '
     downloader = downloader.format(link=bestLink)
-    downloader += "\"{trackname}\"".format(
-        trackname=filePath.replace(
-            '"',
-            '\\"'))
+    downloader += '"{trackname}"'.format(trackname=filePath.replace('"', '\\"'))
 
-    output(
-        template="youtube-dl",
-        link=bestLink,
-        output=filePath
-    )
+    output(template="youtube-dl", link=bestLink, output=filePath)
 
     proc = subprocess.Popen(
-        downloader,
-        shell=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+        downloader, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
     res = proc.communicate()
 
     if proc.returncode == 0:
         output(
             template="youtube-dl_result",
-            result="Downloaded successfully" + "\n\n" + format(res[0])
+            result="Downloaded successfully" + "\n\n" + format(res[0]),
         )
 
         tagged = update_mp3tag(
@@ -463,7 +414,7 @@ def get_song(
             year,
             disc,
             discTotal,
-            genre
+            genre,
         )
 
         if tagged:
@@ -474,7 +425,7 @@ def get_song(
     else:
         output(
             template="youtube-dl_result",
-            result="Download failed" + "\n\n" + format(res[1])
+            result="Download failed" + "\n\n" + format(res[1]),
         )
         append_to_skip_file(bestLink)
 
@@ -488,17 +439,22 @@ def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
         if stop:
             sys.exit(0)
 
-        date = album['releaseDate'][0:4]
-        genre = album['genres'][0] if len(album['genres']) > 0 else ""
+        date = album["releaseDate"][0:4]
+        genre = album["genres"][0] if len(album["genres"]) > 0 else ""
 
         if artist_filter is not None:
-            if SequenceMatcher(None, artist_filter, album['artist']['artistName']).ratio() < 0.8:
+            if (
+                SequenceMatcher(
+                    None, artist_filter, album["artist"]["artistName"]
+                ).ratio()
+                < 0.8
+            ):
                 continue
 
-        full_trackname = album['artist']['artistName']
-        full_trackname += " - " + album['title'] + " - "
-        full_trackname += track['title']
-        
+        full_trackname = album["artist"]["artistName"]
+        full_trackname += " - " + album["title"] + " - "
+        full_trackname += track["title"]
+
         if full_trackname in seen:
             track_no += 1
             continue
@@ -507,31 +463,31 @@ def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
             template="missing",
             record_total=str(totalRecords),
             record_num=str(record_counter),
-            path=album['artist']['path'],
-            artist=album['artist']['artistName'],
-            track=track['title'],
+            path=album["artist"]["path"],
+            artist=album["artist"]["artistName"],
+            track=track["title"],
             date=date,
-            album=album['title'],
-            trackNumber=track['trackNumber'],
+            album=album["title"],
+            trackNumber=track["trackNumber"],
             genre=genre,
-            cd_count=album['mediumCount'],
-            cd_num=track['mediumNumber'],
-            track_no=track['trackNumber'],
+            cd_count=album["mediumCount"],
+            cd_num=track["mediumNumber"],
+            track_no=track["trackNumber"],
             track_count=str(len(track)),
             track_counter=str(track_no),
-            track_total=str(track_total)
+            track_total=str(track_total),
         )
 
         get_song(
-            album['artist']['artistName'],
-            album['title'],
-            track['title'],
-            track['trackNumber'],
+            album["artist"]["artistName"],
+            album["title"],
+            track["title"],
+            track["trackNumber"],
             len(track),
             date,
-            track['mediumNumber'],
-            album['mediumCount'],
-            genre
+            track["mediumNumber"],
+            album["mediumCount"],
+            genre,
         )
 
         seen.append(full_trackname)
@@ -542,14 +498,16 @@ def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
 
 def iterate_records(records, totalRecords, record_counter, artist_filter):
     for album in records:
-        url = endpoint + "/api/v1/track?artistid=" + str(album['artist']['id'])
-        url += "&albumid=" + str(album['id'])
+        url = endpoint + "/api/v1/track?artistid=" + str(album["artist"]["id"])
+        url += "&albumid=" + str(album["id"])
         tracksRequest = requests.get(url, headers=headers)
 
         if tracksRequest.status_code != 200:
             continue
 
-        iterate_tracks(tracksRequest.json(), album, totalRecords, record_counter, artist_filter)
+        iterate_tracks(
+            tracksRequest.json(), album, totalRecords, record_counter, artist_filter
+        )
         record_counter += 1
 
 
@@ -576,7 +534,7 @@ def iterate_missing(artist_filter, iterative):
             continue
 
         json = response.json()
-        totalRecords = json['totalRecords']
+        totalRecords = json["totalRecords"]
         record_counter = 1 + (page_num * 50)
 
         if totalRecords == 0:
@@ -586,24 +544,24 @@ def iterate_missing(artist_filter, iterative):
             print("No more records, waiting 1 hr")
             continue
 
-        if 'records' not in json or len(json['records']) == 0:
+        if "records" not in json or len(json["records"]) == 0:
             if iterative:
                 stop = True
             page_num = 0
             print("Sleeping 60 seconds")
             time.sleep(60)
 
-        iterate_records(json['records'], totalRecords, record_counter, artist_filter)
+        iterate_records(json["records"], totalRecords, record_counter, artist_filter)
         page_num += 1
 
 
 if __name__ == "__main__":
     load_seen()
-    parser = argparse.ArgumentParser(description='Download missing tracks')
-    parser.add_argument('--artist', help='artist to filter by')
-    parser.add_argument('--stop', help='Stop after first run')
+    parser = argparse.ArgumentParser(description="Download missing tracks")
+    parser.add_argument("--artist", help="artist to filter by")
+    parser.add_argument("--stop", help="Stop after first run")
 
     args = parser.parse_args()
-    artist_filter = args.artist if 'artist' in args else None
-    iterative = True if 'stop' in args else False
+    artist_filter = args.artist if "artist" in args else None
+    iterative = True if "stop" in args else False
     iterate_missing(artist_filter, iterative)
