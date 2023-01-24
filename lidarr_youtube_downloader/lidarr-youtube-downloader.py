@@ -9,11 +9,11 @@ import time
 from datetime import datetime
 from difflib import SequenceMatcher
 from os.path import exists
+from typing import Optional
 
 import eyed3
 import numpy as np
 import requests
-from typing import Optional
 import typer
 from youtubesearchpython import VideosSearch
 
