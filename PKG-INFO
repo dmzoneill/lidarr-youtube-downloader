@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: lidarr-youtube-downloader
-Version: 0.3.23
+Version: 0.3.25
 Summary: 
 Home-page: https://github.com/dmzoneill/lidarr-youtube-downloader
 Author: David O Neill
@@ -37,14 +37,15 @@ export LIDARR_URL="http://127.0.0.1:8686"
 export LIDARR_API_KEY="771de60596e946f6b3e5e6f5fb6fd729" # your key
 export LIDARR_DB="/path/to/lidarr/lidarr.db"
 export LIDARR_MUSIC_PATH="/music"
-lidarr-youtube-downloader
+
+lyd
 ```
 
-You can also provide the seetings via the command line
+You can also provide the settings via the command line
 
 ## Help
 ```console
-lidarr-youtube-downloader --help
+lyd --help
 ```
 
 ## Support

@@ -28,6 +28,11 @@ chmod +x /usr/bin/youtube-dl
 pip3 install eyed3 youtube-search-python
 ```
 
+### Install
+```
+pip3 install lidarr-youtube-downloader
+```
+
 ### Config
 ```
 export LIDARR_URL="http://127.0.0.1:8686"
@@ -38,7 +43,6 @@ export LIDARR_MUSIC_PATH="/music"
 
 ### Usage
 ```
-pip3 install lidarr-youtube-downloader
 lyd
 ```
 

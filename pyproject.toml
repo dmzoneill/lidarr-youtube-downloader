@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lidarr-youtube-downloader"
-version = "0.3.23"
+version = "0.3.25"
 description = ""
 readme = "README.md"
 repository = "https://github.com/dmzoneill/lidarr-youtube-downloader"
@@ -18,6 +18,7 @@ pytest = "^6.0.2"
 
 [tool.poetry.scripts]
 lyd = "lidarr_youtube_downloader.lyd:app"
+lyd-unmapped = "lidarr_youtube_downloader.lyd-unmapped:app"
 
 [build-system]
 requires = ["poetry>=0.12"]
