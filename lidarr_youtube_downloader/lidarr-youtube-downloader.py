@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import argparse
 import os
 import re
 import signal
@@ -14,16 +13,16 @@ from os.path import exists
 import eyed3
 import numpy as np
 import requests
+from typing import Optional
+import typer
 from youtubesearchpython import VideosSearch
 
-endpoint = os.environ.get("LIDARR_URL", "http://127.0.0.1:8686")
-api_key = os.environ.get("LIDARR_API_KEY", "771de60596e946f6b3e5e6f5fb6fd729")
-lidar_db = os.environ.get(
-    "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
-)
-music_path = os.environ.get("LIDARR_MUSIC_PATH", "/music")
+endpoint = None
+api_key = None
+lidar_db = None
+music_path = None
 stop = False
-headers = {"X-Api-Key": api_key}
+headers = None
 seen = []
 
 
@@ -555,17 +554,28 @@ def iterate_missing(artist_filter, iterative):
         page_num += 1
 
 
-def main():
+app = typer.Typer()
+
+
+@app.command()
+def main(
+    artist: Optional[str] = None,
+    stop: Optional[str] = None,
+    url: Optional[str] = os.environ.get("LIDARR_URL", "http://127.0.0.1:8686"),
+    key: Optional[str] = os.environ.get(
+        "LIDARR_API_KEY", "771de60596e946f6b3e5e6f5fb6fd729"
+    ),
+    db: Optional[str] = os.environ.get(
+        "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
+    ),
+    path: Optional[str] = os.environ.get("LIDARR_MUSIC_PATH", "/music"),
+):
+    endpoint = url
+    api_key = key
+    lidar_db = db
+    music_path = path
+    headers = {"X-Api-Key": api_key}
     load_seen()
-    parser = argparse.ArgumentParser(description="Download missing tracks")
-    parser.add_argument("--artist", help="artist to filter by")
-    parser.add_argument("--stop", help="Stop after first run")
 
-    args = parser.parse_args()
-    artist_filter = args.artist if "artist" in args else None
-    iterative = True if "stop" in args else False
-    iterate_missing(artist_filter, iterative)
-
-
-if __name__ == "__main__":
-    main()
+    iterative = True if stop is not None else False
+    iterate_missing(artist, iterative)
