@@ -68,11 +68,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: 'main' #optional defaults to master
 
-  build-lidarr-youtube-downloader:
+  publish-lidarr-youtube-downloader:
     if: >-
       github.event_name == 'push' || 
       github.event.pull_request.merged == true
-    name: Build downloader
+    name: Publish PyPi
     needs: bump-version
     runs-on: ubuntu-latest
     steps:
