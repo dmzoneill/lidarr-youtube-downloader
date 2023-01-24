@@ -12,7 +12,6 @@ from os.path import exists
 from typing import Optional
 
 import eyed3
-import numpy as np
 import requests
 import typer
 from youtubesearchpython import VideosSearch
@@ -558,7 +557,7 @@ app = typer.Typer()
 
 
 @app.command()
-def main(
+def run(
     artist: Optional[str] = None,
     stop: Optional[str] = None,
     url: Optional[str] = os.environ.get("LIDARR_URL", "http://127.0.0.1:8686"),

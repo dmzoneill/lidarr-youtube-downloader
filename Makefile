@@ -8,6 +8,11 @@ CWD := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 clean: 
 	rm -rvf dist
 
+check:
+	black -v *.py
+	black -v lidarr_youtube_downloader/*.py
+	
+
 push: clean
 	git add -A
 	git commit --amend --no-edit 

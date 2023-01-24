@@ -1,25 +1,11 @@
 #!/usr/bin/env python3
-import os
-import re
-import signal
 import sqlite3
-import subprocess
-import sys
-import time
-from datetime import datetime
-from difflib import SequenceMatcher
-from email.mime import audio
-from os.path import exists
-from pprint import pprint
+from typing import Optional
 
-import eyed3
-import requests
+import typer
 
 updated = 0
-
-lidar_db = os.environ.get(
-    "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
-)
+lidar_db = None
 
 
 def get_lidarr_track_ids(cur, artist_name, album_name, track_name):
@@ -193,4 +179,14 @@ def iterate_unmapped():
     print("Updated : " + str(updated))
 
 
-iterate_unmapped()
+app = typer.Typer()
+
+
+@app.command()
+def run(
+    db: Optional[str] = os.environ.get(
+        "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
+    ),
+):
+    lidar_db = db
+    iterate_unmapped()
