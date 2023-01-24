@@ -555,7 +555,7 @@ def iterate_missing(artist_filter, iterative):
         page_num += 1
 
 
-if __name__ == "__main__":
+def main():
     load_seen()
     parser = argparse.ArgumentParser(description="Download missing tracks")
     parser.add_argument("--artist", help="artist to filter by")
@@ -565,3 +565,7 @@ if __name__ == "__main__":
     artist_filter = args.artist if "artist" in args else None
     iterative = True if "stop" in args else False
     iterate_missing(artist_filter, iterative)
+
+
+if __name__ == "__main__":
+    main()
