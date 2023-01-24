@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import importlib.util
 import os
 import re
 import signal
@@ -23,6 +24,19 @@ music_path = None
 stop = False
 headers = None
 seen = []
+
+
+def get_view_path():
+    submodule_search_locations = importlib.util.find_spec(
+        "lidarr_youtube_downloader"
+    ).submodule_search_locations
+    if len(submodule_search_locations) == 1:
+        return submodule_search_locations[0]
+    else:
+        if "site-packages" in submodule_search_locations[0]:
+            return submodule_search_locations[0]
+        else:
+            return submodule_search_locations[1]
 
 
 def save_seen():
@@ -53,7 +67,7 @@ def rescan(path):
 def output(**kwargs):
     template = ""
     try:
-        with open("view/" + kwargs["template"]) as file:
+        with open(get_view_path() + "/view/" + kwargs["template"]) as file:
             template = file.read()
             print(template.format(**kwargs))
     except KeyError as error:
@@ -581,4 +595,4 @@ def run(
     load_seen()
 
     iterative = True if stop is not None else False
-    iterate_missing(endpoint, api_key, lidarr_db, artist, iterative)
+    iterate_missing(artist, iterative)
