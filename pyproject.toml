@@ -17,7 +17,7 @@ eyed3 = "*"
 pytest = "^6.0.2"
 
 [tool.poetry.scripts]
-lidarr-youtube-downloader = "lidarr_youtube_downloader.lidarr-youtube-downloader:app"
+lyd = "lidarr_youtube_downloader.lyd:app"
 
 [build-system]
 requires = ["poetry>=0.12"]

@@ -15,7 +15,7 @@ docker run \
    -e LIDARR_API_KEY="771de60596e946f6b3e5e6f5fb6fd729" \
    -e LIDARR_DB="/path/to/lidarr/lidarr.db" \
    -e LIDARR_MUSIC_PATH="/music" \
-   --name lys lys 
+   --name lyd lyd
 ```
 
 # Local Usage
@@ -38,7 +38,8 @@ export LIDARR_MUSIC_PATH="/music"
 
 ### Usage
 ```
-lidarr-youtube-downloader
+pip3 install lidarr-youtube-downloader
+lyd
 ```
 
 # Sample output
