@@ -27,16 +27,19 @@ seen = []
 
 
 def get_view_path():
+    if os.path.exists("./view"):
+        return ""
+
     submodule_search_locations = importlib.util.find_spec(
         "lidarr_youtube_downloader"
     ).submodule_search_locations
     if len(submodule_search_locations) == 1:
-        return submodule_search_locations[0]
+        return submodule_search_locations[0] + "/"
     else:
         if "site-packages" in submodule_search_locations[0]:
-            return submodule_search_locations[0]
+            return submodule_search_locations[0] + "/"
         else:
-            return submodule_search_locations[1]
+            return submodule_search_locations[1] + "/"
 
 
 def save_seen():
@@ -67,7 +70,7 @@ def rescan(path):
 def output(**kwargs):
     template = ""
     try:
-        with open(get_view_path() + "/view/" + kwargs["template"]) as file:
+        with open(get_view_path() + "view/" + kwargs["template"]) as file:
             template = file.read()
             print(template.format(**kwargs))
     except KeyError as error:
