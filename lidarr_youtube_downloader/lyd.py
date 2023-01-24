@@ -18,7 +18,7 @@ from youtubesearchpython import VideosSearch
 
 endpoint = None
 api_key = None
-lidar_db = None
+lidarr_db = None
 music_path = None
 stop = False
 headers = None
@@ -264,6 +264,8 @@ def get_lidarr_track_ids(cur, artist, album, track):
 
 
 def update_lidarr_db(artistName, albumName, title, trackNumber, year):
+    global lidar_db, music_path
+
     path = music_path + "/" + artistName + "/" + albumName
     filePath = path + "/" + artistName + " - " + albumName
     filePath += " - " + title + ".mp3"
@@ -495,6 +497,7 @@ def iterate_tracks(tracks, album, totalRecords, record_counter, artist_filter):
 
 
 def iterate_records(records, totalRecords, record_counter, artist_filter):
+    global endpoint, headers
     for album in records:
         url = endpoint + "/api/v1/track?artistid=" + str(album["artist"]["id"])
         url += "&albumid=" + str(album["id"])
@@ -510,7 +513,7 @@ def iterate_records(records, totalRecords, record_counter, artist_filter):
 
 
 def iterate_missing(artist_filter, iterative):
-    global stop
+    global stop, endpoint, api_key, lidar_db, music_path, headers
     page_num = 0
 
     def signal_handler(sig, frame):
@@ -569,6 +572,7 @@ def run(
     ),
     path: Optional[str] = os.environ.get("LIDARR_MUSIC_PATH", "/music"),
 ):
+    global endpoint, api_key, lidar_db, music_path, headers
     endpoint = url
     api_key = key
     lidar_db = db
@@ -577,4 +581,4 @@ def run(
     load_seen()
 
     iterative = True if stop is not None else False
-    iterate_missing(artist, iterative)
+    iterate_missing(endpoint, api_key, lidarr_db, artist, iterative)
