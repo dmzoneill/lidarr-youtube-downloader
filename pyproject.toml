@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lidarr-youtube-downloader"
-version = "0.3.26"
+version = "0.3.27"
 description = ""
 readme = "README.md"
 repository = "https://github.com/dmzoneill/lidarr-youtube-downloader"
