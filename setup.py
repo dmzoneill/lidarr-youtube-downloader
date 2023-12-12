@@ -10,7 +10,6 @@ install_requires = ["requests", "youtube-search-python", "eyed3"]
 entry_points = {
     "console_scripts": [
         "lyd = lidarr_youtube_downloader.lyd:app",
-        "lyd-unmapped = lidarr_youtube_downloader.lyd-unmapped:app",
     ]
 }
 
