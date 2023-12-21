@@ -1,7 +1,7 @@
-    Youtube-dl
+    yt-dlp
     ========================================
 
-        youtube-dl
+        yt-dlp
             --no-progress
             -x
             --audio-format mp3 "{link}"
