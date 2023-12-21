@@ -27,9 +27,8 @@ docker run \
 ### Requirements
 ```
 dnf/apt install ffmpeg
-sudo curl https://youtube-dl.org/downloads/latest/youtube-dl -o /usr/bin/youtube-dl
-chmod +x /usr/bin/youtube-dl
-pip3 install eyed3 youtube-search-python
+pip3 install eyed3 youtube-search-python yt-dlp
+chmod +x /usr/bin/yt-dlp
 ```
 
 ### Install
@@ -73,10 +72,10 @@ Album: 34/545   Track: 71/226
         
         Selected https://www.youtube.com/watch?v=W15_1kE08Gc
 
-    Youtube-dl
+    yt-dlp
     ========================================
 
-        youtube-dl
+        yt-dlp
             --no-progress
             -x
             --audio-format mp3 "https://www.youtube.com/watch?v=W15_1kE08Gc"
