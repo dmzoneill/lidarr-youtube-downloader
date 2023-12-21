@@ -404,12 +404,12 @@ def get_song(
     if not isExist:
         os.makedirs(path)
 
-    downloader = "youtube-dl --no-progress -x"
+    downloader = "yt-dlp --no-progress -x"
     downloader += ' --audio-format mp3 "{link}" -o '
     downloader = downloader.format(link=bestLink)
     downloader += '"{trackname}"'.format(trackname=filePath.replace('"', '\\"'))
 
-    output(template="youtube-dl", link=bestLink, output=filePath)
+    output(template="yt-dlp", link=bestLink, output=filePath)
 
     proc = subprocess.Popen(
         downloader, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
@@ -418,7 +418,7 @@ def get_song(
 
     if proc.returncode == 0:
         output(
-            template="youtube-dl_result",
+            template="yt-dlp_result",
             result="Downloaded successfully" + "\n\n" + format(res[0]),
         )
 
@@ -441,7 +441,7 @@ def get_song(
             append_to_skip_file(bestLink)
     else:
         output(
-            template="youtube-dl_result",
+            template="yt-dlp_result",
             result="Download failed" + "\n\n" + format(res[1]),
         )
         append_to_skip_file(bestLink)
