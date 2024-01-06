@@ -6,7 +6,6 @@ Look for missing tracks in your lidarr library and download them from youtube.
 
 ### docker run
 The docker build need the `.git` directory, so be sure to clone the repository.
-Using a shallow zip file from this repo does not work.
 
 ```
 git clone https://github.com/dmzoneill/lidarr-youtube-downloader.git
