@@ -10,6 +10,7 @@ next := $(shell echo ${version} | awk -F. '/[0-9]+\./{$$NF++;print}' OFS=.)
 lint:
 	black -v *.py
 	black -v lidarr_youtube_downloader/*.py
+	hadolint Dockerfile
 
 clean: lint
 	rm -rvf dist
