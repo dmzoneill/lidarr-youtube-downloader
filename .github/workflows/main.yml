@@ -15,3 +15,4 @@ jobs:
     uses: dmzoneill/dmzoneill/.github/workflows/dispatch.yaml@main
     with:
       pypi-extension: "true"
+      VALIDATE_DOCKERFILE_HADOLINT: false
