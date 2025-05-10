@@ -1,3 +1,4 @@
+---
 name: AI Issue Responder
 
 on:
@@ -24,7 +25,9 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          prompt="You're a helpful AI assistant. Reply concisely to the following GitHub issue."
+          prompt="You're a helpful AI assistant. " 
+          prompt+="Reply concisely to the following GitHub issue."
+
           title="${{ steps.get_issue.outputs.title }}"
           body="${{ steps.get_issue.outputs.body }}"
 
@@ -41,17 +44,25 @@ jobs:
               temperature: 0.5
             }')
 
-          response=$(curl -s https://api.openai.com/v1/chat/completions \
-            -H "Authorization: Bearer $OPENAI_API_KEY" \
-            -H "Content-Type: application/json" \
+          api_url="https://api.openai.com/v1/chat/completions"
+          auth="Authorization: Bearer $OPENAI_API_KEY"
+          ctype="Content-Type: application/json"
+
+          response=$(curl -s "$api_url" \
+            -H "$auth" \
+            -H "$ctype" \
             -d "$json" | jq -r '.choices[0].message.content')
 
           echo "reply=$response" >> "$GITHUB_OUTPUT"
 
       - name: Reply to issue
         run: |
+          comment="${{ steps.ai.outputs.reply }}"
+          api_url="https://api.github.com/repos/${{ github.repository }}"
+          api_url+="/issues/${{ github.event.issue.number }}/comments"
+
           curl -s -X POST \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
-            -d "$(jq -n --arg body "${{ steps.ai.outputs.reply }}" '{body: $body}')"
+            "$api_url" \
+            -d "$(jq -n --arg body "$comment" '{body: $body}')"
