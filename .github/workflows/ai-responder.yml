@@ -1,4 +1,3 @@
----
 name: AI Issue Responder
 
 on:
@@ -16,25 +15,27 @@ jobs:
     steps:
       - name: Get issue content
         id: get_issue
+        env:
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          echo "title=${{ github.event.issue.title }}" >> "$GITHUB_OUTPUT"
-          echo "body=${{ github.event.issue.body }}" >> "$GITHUB_OUTPUT"
+          echo "title=$ISSUE_TITLE" >> "$GITHUB_OUTPUT"
+          echo "body=$ISSUE_BODY" >> "$GITHUB_OUTPUT"
 
       - name: Call OpenAI API
         id: ai
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ISSUE_TITLE: ${{ steps.get_issue.outputs.title }}
+          ISSUE_BODY: ${{ steps.get_issue.outputs.body }}
         run: |
           prompt="You're a helpful AI assistant. " 
           prompt+="Reply concisely to the following GitHub issue."
 
-          title="${{ steps.get_issue.outputs.title }}"
-          body="${{ steps.get_issue.outputs.body }}"
-
           json=$(jq -n \
             --arg model "gpt-4o" \
             --arg system "$prompt" \
-            --arg user "$title - $body" \
+            --arg user "$ISSUE_TITLE - $ISSUE_BODY" \
             '{
               model: $model,
               messages: [
@@ -56,8 +57,9 @@ jobs:
           echo "reply=$response" >> "$GITHUB_OUTPUT"
 
       - name: Reply to issue
+        env:
+          COMMENT_BODY: ${{ steps.ai.outputs.reply }}
         run: |
-          comment="${{ steps.ai.outputs.reply }}"
           api_url="https://api.github.com/repos/${{ github.repository }}"
           api_url+="/issues/${{ github.event.issue.number }}/comments"
 
@@ -65,4 +67,4 @@ jobs:
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "$api_url" \
-            -d "$(jq -n --arg body "$comment" '{body: $body}')"
+            -d "$(jq -n --arg body "$COMMENT_BODY" '{body: $body}')"
