@@ -1,3 +1,4 @@
+---
 name: AI Issue Responder
 
 on:
@@ -13,58 +14,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Get issue content
-        id: get_issue
-        env:
-          ISSUE_TITLE: ${{ github.event.issue.title }}
-          ISSUE_BODY: ${{ github.event.issue.body }}
+      - name: Download AI responder script
         run: |
-          echo "title=$ISSUE_TITLE" >> "$GITHUB_OUTPUT"
-          echo "body=$ISSUE_BODY" >> "$GITHUB_OUTPUT"
+          curl -sSL "https://raw.githubusercontent.com/dmzoneill/dmzoneill/main/ai-responder.py" -o ai-responder.py
+          chmod +x ai-responder.py
 
-      - name: Call OpenAI API
-        id: ai
+      - name: Run AI responder
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ISSUE_TITLE: ${{ steps.get_issue.outputs.title }}
-          ISSUE_BODY: ${{ steps.get_issue.outputs.body }}
-        run: |
-          prompt="You're a helpful AI assistant. " 
-          prompt+="Reply concisely to the following GitHub issue."
-
-          json=$(jq -n \
-            --arg model "gpt-4o" \
-            --arg system "$prompt" \
-            --arg user "$ISSUE_TITLE - $ISSUE_BODY" \
-            '{
-              model: $model,
-              messages: [
-                {role: "system", content: $system},
-                {role: "user", content: $user}
-              ],
-              temperature: 0.5
-            }')
-
-          api_url="https://api.openai.com/v1/chat/completions"
-          auth="Authorization: Bearer $OPENAI_API_KEY"
-          ctype="Content-Type: application/json"
-
-          response=$(curl -s "$api_url" \
-            -H "$auth" \
-            -H "$ctype" \
-            -d "$json" | jq -r '.choices[0].message.content')
-
-          echo "reply=$response" >> "$GITHUB_OUTPUT"
-
-      - name: Reply to issue
-        env:
-          COMMENT_BODY: ${{ steps.ai.outputs.reply }}
-        run: |
-          api_url="https://api.github.com/repos/${{ github.repository }}"
-          api_url+="/issues/${{ github.event.issue.number }}/comments"
-
-          curl -s -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "$api_url" \
-            -d "$(jq -n --arg body "$COMMENT_BODY" '{body: $body}')"
+          OPENAI_API_KEY: ${{ secrets.AI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_REPO_URL: "https://github.com/${{ github.repository }}"
+        run: ./ai-responder.py
