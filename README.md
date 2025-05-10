@@ -37,7 +37,7 @@ pip3 install lidarr-youtube-downloader
 
 ### Config
 ```
-export LIDARR_URL="http://127.0.0.1:8686"
+export LIDARR_URL="http://127.0.0.2:8686"
 export LIDARR_API_KEY="771de60596e946f6b3e5e6f5fb6fd729" # your key
 export LIDARR_DB="/path/to/lidarr/lidarr.db"
 export LIDARR_MUSIC_PATH="/music"
