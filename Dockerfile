@@ -6,6 +6,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -y && \
     rm -r -f /var/lib/apt/lists/* && \
     python3 -m pip install --no-cache-dir --break-system-packages  --no-deps -U yt-dlp && \
     pip3 install --no-cache-dir --break-system-packages requests eyed3 youtube-search-python typer
+RUN  pip3 install --no-cache-dir --break-system-packages --force-reinstall 'httpx<0.28'
 COPY lidarr_youtube_downloader/lyd.py /
 COPY lidarr_youtube_downloader/view/ /view
 CMD ["python3", "-u", "/lyd.py"]
