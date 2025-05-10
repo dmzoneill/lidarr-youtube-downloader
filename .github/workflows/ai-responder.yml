@@ -1,0 +1,58 @@
+name: AI Issue Responder
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  ai-respond:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get issue content
+        id: get_issue
+        run: |
+          title=$(echo "${{ github.event.issue.title }}" | jq -Rsa .)
+          body=$(echo "${{ github.event.issue.body }}" | jq -Rsa .)
+          echo "title=$title" >> "$GITHUB_OUTPUT"
+          echo "body=$body" >> "$GITHUB_OUTPUT"
+
+      - name: Call OpenAI API
+        id: ai
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          prompt="You're a helpful AI assistant. Reply concisely to the following GitHub issue."
+          input="${{ steps.get_issue.outputs.title }} - ${{ steps.get_issue.outputs.body }}"
+
+          json=$(jq -n \
+            --arg model "gpt-4o" \
+            --arg system "$prompt" \
+            --arg user "$input" \
+            '{
+              model: $model,
+              messages: [
+                {role: "system", content: $system},
+                {role: "user", content: $user}
+              ],
+              temperature: 0.5
+            }')
+
+          response=$(curl -s https://api.openai.com/v1/chat/completions \
+            -H "Authorization: Bearer $OPENAI_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d "$json" | jq -r '.choices[0].message.content')
+
+          echo "reply=$response" >> "$GITHUB_OUTPUT"
+
+      - name: Reply to issue
+        run: |
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments \
+            -d "$(jq -n --arg body "${{ steps.ai.outputs.reply }}" '{body: $body}')"
