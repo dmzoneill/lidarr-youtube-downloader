@@ -16,10 +16,8 @@ jobs:
       - name: Get issue content
         id: get_issue
         run: |
-          title=$(echo "${{ github.event.issue.title }}" | jq -Rsa .)
-          body=$(echo "${{ github.event.issue.body }}" | jq -Rsa .)
-          echo "title=$title" >> "$GITHUB_OUTPUT"
-          echo "body=$body" >> "$GITHUB_OUTPUT"
+          echo "title=${{ github.event.issue.title }}" >> "$GITHUB_OUTPUT"
+          echo "body=${{ github.event.issue.body }}" >> "$GITHUB_OUTPUT"
 
       - name: Call OpenAI API
         id: ai
@@ -27,12 +25,13 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           prompt="You're a helpful AI assistant. Reply concisely to the following GitHub issue."
-          input="${{ steps.get_issue.outputs.title }} - ${{ steps.get_issue.outputs.body }}"
+          title="${{ steps.get_issue.outputs.title }}"
+          body="${{ steps.get_issue.outputs.body }}"
 
           json=$(jq -n \
             --arg model "gpt-4o" \
             --arg system "$prompt" \
-            --arg user "$input" \
+            --arg user "$title - $body" \
             '{
               model: $model,
               messages: [
