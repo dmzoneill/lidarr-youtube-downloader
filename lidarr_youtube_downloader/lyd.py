@@ -22,6 +22,8 @@ api_key = None
 lidarr_db = None
 music_path = None
 cookies_file = None
+match_threshold = 0.8
+blacklist_keywords = []
 stop = False
 headers = None
 seen = []
@@ -383,6 +385,9 @@ def get_song(
             return
 
         for song in videosSearch.result()["result"]:
+            title_lower = song["title"].lower()
+            if any(kw in title_lower for kw in blacklist_keywords):
+                continue
             if SequenceMatcher(None, searchFor, song["title"]).ratio() > best:
                 if skip_youtube_download(song["link"]) is False:
                     best = SequenceMatcher(None, searchFor, song["title"]).ratio()
@@ -393,7 +398,7 @@ def get_song(
 
     result = "Best match: " + str(best)
 
-    if best < 0.8:
+    if best < match_threshold:
         result = "Unable to find " + searchFor
         return
 
@@ -592,13 +597,18 @@ def run(
     ),
     path: Optional[str] = os.environ.get("LIDARR_MUSIC_PATH", "/music"),
     cookies: Optional[str] = os.environ.get("YT_COOKIES_FILE", None),
+    threshold: Optional[float] = float(os.environ.get("MATCH_THRESHOLD", "0.8")),
+    blacklist: Optional[str] = os.environ.get("BLACKLIST_KEYWORDS", ""),
 ):
     global endpoint, api_key, lidar_db, music_path, headers, cookies_file
+    global match_threshold, blacklist_keywords
     endpoint = url
     api_key = key
     lidar_db = db
     music_path = path
     cookies_file = cookies
+    match_threshold = threshold
+    blacklist_keywords = [kw.strip().lower() for kw in blacklist.split(",") if kw.strip()]
     headers = {"X-Api-Key": api_key}
     load_seen()
 
