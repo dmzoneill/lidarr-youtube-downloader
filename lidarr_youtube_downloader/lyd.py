@@ -286,12 +286,25 @@ def get_lidarr_track_ids(cur, artist, album, track):
 def update_lidarr_db(artistName, albumName, title, trackNumber, year):
     global lidar_db, music_path
 
+    if not os.path.exists(lidar_db):
+        output(template="lidarr", result="Database not found: " + str(lidar_db))
+        return
+
     path = music_path + "/" + artistName + "/" + albumName
     filePath = path + "/" + artistName + " - " + albumName
     filePath += " - " + title + ".mp3"
 
     con = sqlite3.connect(lidar_db)
     cur = con.cursor()
+
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='Albums'")
+    if not cur.fetchone():
+        output(
+            template="lidarr",
+            result="Invalid Lidarr DB: 'Albums' table not found in " + str(lidar_db),
+        )
+        con.close()
+        return
 
     album_id = get_lidarr_album_id(cur, albumName, year)
     trackfile_id = get_lidarr_trackfile_id(cur, filePath)
