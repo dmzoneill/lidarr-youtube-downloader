@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import sqlite3
 from typing import Optional
 
@@ -184,9 +185,8 @@ app = typer.Typer()
 
 @app.command()
 def run(
-    db: Optional[str] = os.environ.get(
-        "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
-    ),
+    db: Optional[str] = os.environ.get("LIDARR_DB", None),
 ):
+    global lidar_db
     lidar_db = db
     iterate_unmapped()

@@ -228,8 +228,8 @@ def set_lidarr_track_trackfield(con, cur, TrackFileId, track_id):
     cur.execute(
         "UPDATE Tracks SET TrackFileId=? WHERE id = ?",
         (
-            track_id,
             TrackFileId,
+            track_id,
         ),
     )
     con.commit()
