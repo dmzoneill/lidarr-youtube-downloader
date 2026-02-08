@@ -1,18 +1,21 @@
 Metadata-Version: 2.1
 Name: lidarr-youtube-downloader
 Version: 0.3.33
-Summary: 
+Summary:
 Home-page: https://github.com/dmzoneill/lidarr-youtube-downloader
 Author: David O Neill
 Author-email: dmz.oneill@gmail.com
-Requires-Python: >=3.8,<4.0
+Requires-Python: >=3.10,<4.0
 Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.8
-Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
 Requires-Dist: requests
 Requires-Dist: youtube-search-python
 Requires-Dist: eyed3
-Requires-Dist: requests
+Requires-Dist: typer
+Requires-Dist: yt-dlp
 Project-URL: Repository, https://github.com/dmzoneill/lidarr-youtube-downloader
 Description-Content-Type: text/markdown
 
@@ -20,21 +23,19 @@ Description-Content-Type: text/markdown
 
 # Lidarr youtube downloader
 This tools iterates your missing tracks in lidarr, and attempts to download them from youtube.
-It will use youtube-dl for download ffmpeg to convert them.
+It will use yt-dlp for download and ffmpeg to convert them.
 
 ## Install
 ```console
 dnf/apt install ffmpeg
-sudo curl https://youtube-dl.org/downloads/latest/youtube-dl -o /usr/bin/youtube-dl
-chmod +x /usr/bin/youtube-dl
-pip3 install eyed3 youtube-search-python
+pip3 install eyed3 youtube-search-python yt-dlp typer
 pip3 install lidarr-youtube-downloader
 ```
 
 ## How to use
 ```console
 export LIDARR_URL="http://127.0.0.4:8686"
-export LIDARR_API_KEY="771de60596e946f6b3e5e6f5fb6fd729" # your key
+export LIDARR_API_KEY="your-api-key"
 export LIDARR_DB="/path/to/lidarr/lidarr.db"
 export LIDARR_MUSIC_PATH="/music"
 

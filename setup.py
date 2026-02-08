@@ -5,11 +5,12 @@ packages = ["lidarr_youtube_downloader"]
 
 package_data = {"": ["*", "view/*", "lidarr_youtube_downloader/view/*"]}
 
-install_requires = ["requests", "youtube-search-python", "eyed3"]
+install_requires = ["requests", "youtube-search-python", "eyed3", "typer", "yt-dlp"]
 
 entry_points = {
     "console_scripts": [
         "lyd = lidarr_youtube_downloader.lyd:app",
+        "lyd-unmapped = lidarr_youtube_downloader.lyd-unmapped:app",
     ]
 }
 
@@ -28,7 +29,7 @@ setup_kwargs = {
     "install_requires": install_requires,
     "entry_points": entry_points,
     "include_package_data": True,
-    "python_requires": ">=3.8,<4.0",
+    "python_requires": ">=3.10,<4.0",
 }
 
 

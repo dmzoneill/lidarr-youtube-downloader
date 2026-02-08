@@ -15,7 +15,7 @@ docker run \
    -v /path/to/music:/path/to/music \
    -v /path/to/db/file:/path/to/db/file \   
    -e LIDARR_URL="http://HOST_IP:8686" \
-   -e LIDARR_API_KEY="771de60596e946f6b3e5e6f5fb6fd729" \
+   -e LIDARR_API_KEY="your-api-key" \
    -e LIDARR_DB="/path/to/lidarr/lidarr.db" \
    -e LIDARR_MUSIC_PATH="/music" \
    --name lyd lyd
@@ -26,8 +26,7 @@ docker run \
 ### Requirements
 ```
 dnf/apt install ffmpeg
-pip3 install eyed3 youtube-search-python yt-dlp
-chmod +x /usr/bin/yt-dlp
+pip3 install eyed3 youtube-search-python yt-dlp typer
 ```
 
 ### Install
@@ -38,9 +37,14 @@ pip3 install lidarr-youtube-downloader
 ### Config
 ```
 export LIDARR_URL="http://127.0.0.4:8686"
-export LIDARR_API_KEY="771de60596e946f6b3e5e6f5fb6fd729" # your key
+export LIDARR_API_KEY="your-api-key"
 export LIDARR_DB="/path/to/lidarr/lidarr.db"
 export LIDARR_MUSIC_PATH="/music"
+
+# Optional settings
+export YT_COOKIES_FILE="/path/to/cookies.txt"    # YouTube cookies for auth
+export MATCH_THRESHOLD="0.8"                      # Fuzzy match threshold (0.0-1.0)
+export BLACKLIST_KEYWORDS="live,karaoke,cover"    # Skip YouTube results with these words
 ```
 
 ### Usage
