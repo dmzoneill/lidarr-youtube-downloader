@@ -1,19 +1,20 @@
 # lidarr-youtube-downloader
 
-Look for missing tracks in your lidarr library and download them from youtube.
+Look for missing tracks in your Lidarr library and download them from YouTube.
 
-# Docker Usage
+## Docker Usage
 
 ### docker run
-The docker build need the `.git` directory, so be sure to clone the repository.
 
-```
+The docker build needs the `.git` directory, so be sure to clone the repository.
+
+```bash
 git clone https://github.com/dmzoneill/lidarr-youtube-downloader.git
 docker build -t lyd .
 # you need to be careful that the path matches the path that lidarr knows
 docker run \
    -v /path/to/music:/path/to/music \
-   -v /path/to/db/file:/path/to/db/file \   
+   -v /path/to/db/file:/path/to/db/file \
    -e LIDARR_URL="http://HOST_IP:8686" \
    -e LIDARR_API_KEY="your-api-key" \
    -e LIDARR_DB="/path/to/lidarr/lidarr.db" \
@@ -21,21 +22,24 @@ docker run \
    --name lyd lyd
 ```
 
-# Local Usage
+## Local Usage
 
 ### Requirements
-```
+
+```bash
 dnf/apt install ffmpeg
 pip3 install eyed3 youtube-search-python yt-dlp typer
 ```
 
 ### Install
-```
+
+```bash
 pip3 install lidarr-youtube-downloader
 ```
 
 ### Config
-```
+
+```bash
 export LIDARR_URL="http://127.0.0.4:8686"
 export LIDARR_API_KEY="your-api-key"
 export LIDARR_DB="/path/to/lidarr/lidarr.db"
@@ -48,12 +52,14 @@ export BLACKLIST_KEYWORDS="live,karaoke,cover"    # Skip YouTube results with th
 ```
 
 ### Usage
-```
+
+```bash
 lyd
 ```
 
-# Sample output
-```
+## Sample output
+
+```text
 Album: 34/545   Track: 71/226
 ================================================================================
 
@@ -67,12 +73,12 @@ Album: 34/545   Track: 71/226
     CD No          : 6
     Track No       : 2/12
 
-    Youtube search
+    YouTube search
     ========================================
-        
+
         Best title: The Beatles - Norwegian Wood (This Bird Has Flown)
         Best match: 1.0
-        
+
         Selected https://www.youtube.com/watch?v=W15_1kE08Gc
 
     yt-dlp
@@ -82,7 +88,7 @@ Album: 34/545   Track: 71/226
             --no-progress
             -x
             --audio-format mp3 "https://www.youtube.com/watch?v=W15_1kE08Gc"
-            -o 
+            -o
             "/music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3"
 
 
@@ -109,6 +115,5 @@ Album: 34/545   Track: 71/226
             -loglevel error
             "/music/The Beatles/The Beatles/The Beatles - The Beatles - Norwegian Wood (This Bird Has Flown).mp3"
 
-        ffmpeg added mp3 tag      
-
+        ffmpeg added mp3 tag
 ```

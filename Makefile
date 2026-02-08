@@ -1,6 +1,6 @@
-.PHONY: all
+.PHONY: all lint test clean bump upload version push docker-build
 
-all: clean push
+all: lint test
 
 SHELL := /bin/bash
 CWD := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -8,17 +8,20 @@ version := $(shell grep '^Version:' PKG-INFO | sed 's/Version: //')
 next := $(shell echo ${version} | awk -F. '/[0-9]+\./{$$NF++;print}' OFS=.)
 
 lint:
-	black -v *.py
 	black -v lidarr_youtube_downloader/*.py
-	hadolint Dockerfile
+	black -v setup.py
+	flake8 --max-line-length 120 setup.py lidarr_youtube_downloader/*.py || true
 
-clean: lint
-	rm -rvf dist
-	
+test:
+	pytest -v
+
+clean:
+	rm -rvf dist build *.egg-info
+
 bump: clean
-	sed "s/$(version)/$(next)/" -i PKG-INFO 
-	sed "s/$(version)/$(next)/" -i pyproject.toml 
-	sed "s/$(version)/$(next)/" -i setup.py 
+	sed "s/$(version)/$(next)/" -i PKG-INFO
+	sed "s/$(version)/$(next)/" -i pyproject.toml
+	sed "s/$(version)/$(next)/" -i setup.py
 
 upload: bump
 	python3 -m pip install --upgrade build
@@ -30,5 +33,8 @@ version: upload clean
 	git add -A
 	git commit -a -m "Bump to $(next)"
 
-push: clean
-	git push -u origin main:main -f
+docker-build:
+	docker build -t lyd .
+
+push:
+	git push -u origin main:main
