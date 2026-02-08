@@ -147,7 +147,6 @@ def iterate_unmapped():
     global updated
     con = sqlite3.connect(lidar_db)
     cur = con.cursor()
-    con.set_trace_callback(print)
 
     updated = 0
     cur.execute(
