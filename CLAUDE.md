@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-lidarr-youtube-downloader (lyd) is a Python CLI tool that integrates with Lidarr (music collection manager) to find missing tracks and automatically download them from YouTube, then tag them with proper metadata. It runs as a continuous daemon or one-shot via `--stop`.
+lidarr-youtube-downloader (lyd) is a Python command-line tool that integrates with Lidarr (music collection manager) to find missing tracks and automatically download them from YouTube, then tag them with proper metadata. It runs as a continuous daemon or one-shot via `--stop`.
 
 ## Build & Development Commands
 
@@ -15,11 +15,14 @@ pip3 install eyed3 youtube-search-python yt-dlp requests typer
 # Install the package locally
 pip install -e .
 
-# Lint (Black formatter + Dockerfile hadolint)
+# Lint (Black formatter + flake8)
 make lint
 
-# Run tests (pytest configured but no tests exist yet)
-pytest
+# Run tests
+make test
+
+# Run both lint and test
+make
 
 # Version bump (updates PKG-INFO, pyproject.toml, setup.py)
 make bump
@@ -28,7 +31,7 @@ make bump
 make upload
 
 # Docker build
-docker build -t lyd .
+make docker-build
 ```
 
 ## Required Environment Variables
