@@ -58,16 +58,19 @@ def load_seen():
     try:
         with open("seen", "r") as fp:
             seen = fp.read().splitlines()
-    except:
+    except (OSError, IOError):
         seen = []
 
 
 def rescan(path):
-    data = {"name": "RescanFolders", "folders": [path]}
-    requests.post(endpoint + "/api/v1/command", json=data, headers=headers)
+    try:
+        data = {"name": "RescanFolders", "folders": [path]}
+        requests.post(endpoint + "/api/v1/command", json=data, headers=headers)
 
-    data = {"name": "DownloadedAlbumsScan", "path": path, "folders": [path]}
-    requests.post(endpoint + "/api/v1/command", json=data, headers=headers)
+        data = {"name": "DownloadedAlbumsScan", "path": path, "folders": [path]}
+        requests.post(endpoint + "/api/v1/command", json=data, headers=headers)
+    except requests.exceptions.RequestException as e:
+        print("    Rescan request failed: " + str(e))
 
 
 def output(**kwargs):
@@ -185,8 +188,7 @@ def update_mp3tag(
             output(template="tagging", result="Updated tag")
             return True
     except Exception as e:
-        output(template="tagging", result="Not updated, corrupt " + str(e))
-        os.remove(filePath)
+        output(template="tagging", result="Not updated, error: " + str(e))
         return False
 
 
@@ -406,7 +408,8 @@ def get_song(
                     best = SequenceMatcher(None, searchFor, song["title"]).ratio()
                     bestLink = song["link"]
                     bestTitle = song["title"]
-    except:
+    except Exception as e:
+        print("    YouTube search failed: " + str(e))
         return
 
     result = "Best match: " + str(best)
