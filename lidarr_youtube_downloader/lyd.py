@@ -21,6 +21,7 @@ endpoint = None
 api_key = None
 lidarr_db = None
 music_path = None
+cookies_file = None
 stop = False
 headers = None
 seen = []
@@ -405,6 +406,8 @@ def get_song(
         os.makedirs(path)
 
     downloader = "yt-dlp --no-progress -x"
+    if cookies_file:
+        downloader += ' --cookies "' + cookies_file + '"'
     downloader += ' --audio-format mp3 "{link}" -o '
     downloader = downloader.format(link=bestLink)
     downloader += '"{trackname}"'.format(trackname=filePath.replace('"', '\\"'))
@@ -588,12 +591,14 @@ def run(
         "LIDARR_DB", "/home/dave/src/docker-media-center/config/lidarr/lidarr.db"
     ),
     path: Optional[str] = os.environ.get("LIDARR_MUSIC_PATH", "/music"),
+    cookies: Optional[str] = os.environ.get("YT_COOKIES_FILE", None),
 ):
-    global endpoint, api_key, lidar_db, music_path, headers
+    global endpoint, api_key, lidar_db, music_path, headers, cookies_file
     endpoint = url
     api_key = key
     lidar_db = db
     music_path = path
+    cookies_file = cookies
     headers = {"X-Api-Key": api_key}
     load_seen()
 
