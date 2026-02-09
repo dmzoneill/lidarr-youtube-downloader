@@ -46,7 +46,7 @@ def get_lidarr_album_id(cur, artist_name, album_name, track_name):
         and ArtistMetadata.Name = ?
         and AlbumReleases.Title = ?
         and Tracks.Title = ?
-        limit 1    
+        limit 1
     """
     cur.execute(
         sql,

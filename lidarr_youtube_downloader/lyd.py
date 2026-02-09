@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 from difflib import SequenceMatcher
 from os.path import exists
-from typing import Optional
+from typing import List, Optional
 
 import eyed3
 import requests
@@ -19,14 +19,14 @@ from youtubesearchpython import VideosSearch
 
 endpoint = None
 api_key = None
-lidarr_db = None
+lidar_db = None
 music_path = None
 cookies_file = None
 match_threshold = 0.8
-blacklist_keywords = []
+blacklist_keywords: List[str] = []
 stop = False
 headers = None
-seen = []
+seen: List[str] = []
 
 
 def get_view_path():
@@ -619,8 +619,10 @@ def run(
     lidar_db = db
     music_path = path
     cookies_file = cookies
-    match_threshold = threshold
-    blacklist_keywords = [kw.strip().lower() for kw in blacklist.split(",") if kw.strip()]
+    match_threshold = threshold if threshold is not None else 0.8
+    blacklist_keywords = [
+        kw.strip().lower() for kw in (blacklist or "").split(",") if kw.strip()
+    ]
     headers = {"X-Api-Key": api_key}
     load_seen()
 
