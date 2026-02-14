@@ -19,7 +19,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup_kwargs = {
     "name": "lidarr-youtube-downloader",
-    "version": "0.3.34",
+    "version": "0.3.35",
     "description": "",
     "long_description": long_description,
     "long_description_content_type": "text/markdown",
