@@ -1,3 +1,26 @@
 dist/**
 seen
 .skip
+# AI tool configurations
+.claude/
+.cursor/
+.codex/
+.opencode/
+.gemini/
+.aider*
+.cody/
+.tabnine/
+.windsurf/
+.devai/
+.bolt/
+.v0/
+.lovable/
+.codeium/
+CLAUDE.md
+GEMINI.md
+.cursorrules
+.cursorignore
+opencode.json
+copilot-instructions.md
+.github/copilot-instructions.md
+.github/hooks/
