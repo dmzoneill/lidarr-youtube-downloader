@@ -12,8 +12,8 @@ permissions:
   pull-requests: write
 
 jobs:
-  ai-respond-issue:
-    if: github.event_name == 'issues' && github.actor != 'dependabot[bot]'
+  ai-respond:
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:
@@ -36,54 +36,18 @@ jobs:
           curl -sSL "https://raw.githubusercontent.com/dmzoneill/dmzoneill/main/ai-responder.py" -o ai-responder.py
           chmod +x ai-responder.py
 
-      - name: Run AI responder for issue
+      - name: Run AI responder
         env:
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-credentials.json
           ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.ANTHROPIC_VERTEX_PROJECT_ID }}
           CLAUDE_CODE_USE_VERTEX: ${{ secrets.CLAUDE_CODE_USE_VERTEX }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_NUMBER: ${{ github.event_name == 'issues' && github.event.issue.number || '' }}
+          PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || '' }}
           ISSUE_REPO_URL: "https://github.com/${{ github.repository }}"
-          EVENT_TYPE: issue
+          EVENT_TYPE: ${{ github.event_name == 'issues' && 'issue' || 'pull_request' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ISSUES_CHAT_ID: ${{ secrets.TELEGRAM_ISSUES_CHAT_ID }}
-        run: python ai-responder.py
-
-  ai-respond-pr:
-    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install Claude CLI
-        run: npm install -g @anthropic-ai/claude-code
-
-      - name: Setup Google Cloud credentials
-        run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/gcloud-credentials.json
-
-      - name: Install Python dependencies
-        run: pip install requests
-
-      - name: Download AI responder script
-        run: |
-          curl -sSL "https://raw.githubusercontent.com/dmzoneill/dmzoneill/main/ai-responder.py" -o ai-responder.py
-          chmod +x ai-responder.py
-
-      - name: Run AI responder for PR
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/gcloud-credentials.json
-          ANTHROPIC_VERTEX_PROJECT_ID: ${{ secrets.ANTHROPIC_VERTEX_PROJECT_ID }}
-          CLAUDE_CODE_USE_VERTEX: ${{ secrets.CLAUDE_CODE_USE_VERTEX }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          ISSUE_REPO_URL: "https://github.com/${{ github.repository }}"
-          EVENT_TYPE: pull_request
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_PR_CHAT_ID: ${{ secrets.TELEGRAM_PR_CHAT_ID }}
         run: python ai-responder.py
