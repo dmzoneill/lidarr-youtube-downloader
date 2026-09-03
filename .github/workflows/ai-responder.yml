@@ -2,6 +2,12 @@
 name: AI Issue and PR Responder
 
 on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: "Issue number to test response on"
+        required: false
+        default: "13"
   issues:
     types: [opened]
   pull_request:
@@ -23,6 +29,7 @@ jobs:
           python-version: "3.11"
 
       - name: Setup Google credentials
+        if: secrets.OPENCODE_API_KEY == '' && secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON != ''
         run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/gcloud-credentials.json
 
       - name: Install Python dependencies
@@ -41,10 +48,10 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          ISSUE_NUMBER: ${{ github.event_name == 'issues' && github.event.issue.number || '' }}
+          ISSUE_NUMBER: ${{ github.event_name == 'issues' && github.event.issue.number || inputs.issue_number || '' }}
           PR_NUMBER: ${{ github.event_name == 'pull_request' && github.event.pull_request.number || '' }}
           ISSUE_REPO_URL: "https://github.com/${{ github.repository }}"
-          EVENT_TYPE: ${{ github.event_name == 'issues' && 'issue' || 'pull_request' }}
+          EVENT_TYPE: ${{ github.event_name == 'pull_request' && 'pull_request' || 'issue' }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_ISSUES_CHAT_ID: ${{ secrets.TELEGRAM_ISSUES_CHAT_ID }}
           TELEGRAM_PR_CHAT_ID: ${{ secrets.TELEGRAM_PR_CHAT_ID }}
