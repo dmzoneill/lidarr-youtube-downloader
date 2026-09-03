@@ -29,8 +29,11 @@ jobs:
           python-version: "3.11"
 
       - name: Setup Google credentials
-        if: secrets.OPENCODE_API_KEY == '' && secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON != ''
-        run: echo '${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}' > /tmp/gcloud-credentials.json
+        env:
+          OPENCODE_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          GOOGLE_CREDS: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+        if: env.OPENCODE_KEY == '' && env.GOOGLE_CREDS != ''
+        run: echo "$GOOGLE_CREDS" > /tmp/gcloud-credentials.json
 
       - name: Install Python dependencies
         run: pip install requests
