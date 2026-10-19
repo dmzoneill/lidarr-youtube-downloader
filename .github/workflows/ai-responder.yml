@@ -64,12 +64,6 @@ jobs:
           curl --proto '=https' --tlsv1.2 -fsS "https://raw.githubusercontent.com/dmzoneill/dmzoneill/main/ai-responder.py" -o ai-responder.py
           chmod +x ai-responder.py
 
-      - name: Install OpenCode CLI
-        env:
-          OPENCODE_KEY: ${{ secrets.OPENCODE_API_KEY }}
-        if: env.OPENCODE_KEY != ''
-        run: curl -fsSL https://opencode.ai/install | bash
-
       - name: Run AI responder
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
