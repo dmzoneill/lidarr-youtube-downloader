@@ -16,7 +16,7 @@ typer = "*"
 yt-dlp = "*"
 
 [tool.poetry.dev-dependencies]
-pytest = "^8.0"
+pytest = "^9.1"
 
 [tool.poetry.scripts]
 lyd = "lidarr_youtube_downloader.lyd:app"
