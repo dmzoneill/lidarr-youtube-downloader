@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
@@ -49,7 +49,15 @@ jobs:
           certifi==2026.7.22 \
               --hash=sha256:62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775
           EOF
-          python -m pip install --only-binary :all: --require-hashes --platform any --abi none --implementation py -r /tmp/ai-responder-requirements.txt
+          python -m pip install \
+            --only-binary :all: \
+            --require-hashes \
+            --platform any \
+            --abi none \
+            --implementation py \
+            --target /tmp/ai-responder-deps \
+            --requirement /tmp/ai-responder-requirements.txt
+          echo "PYTHONPATH=/tmp/ai-responder-deps" >> "${GITHUB_ENV}"
 
       - name: Download AI responder script
         run: |
