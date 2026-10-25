@@ -5,7 +5,7 @@ packages = ["lidarr_youtube_downloader"]
 
 package_data = {"": ["*", "view/*", "lidarr_youtube_downloader/view/*"]}
 
-install_requires = ["requests", "youtube-search-python", "eyed3", "typer", "yt-dlp"]
+install_requires = ["requests", "youtube-search-python", "eyed3", "typer", "yt-dlp", "certifi>=2026.10.19"]
 
 entry_points = {
     "console_scripts": [
