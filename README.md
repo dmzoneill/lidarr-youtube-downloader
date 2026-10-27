@@ -1,12 +1,16 @@
 # lidarr-youtube-downloader
 
+<p align="center">
+  <img src=".github/logo.png" alt="lidarr-youtube-downloader logo" width="128" />
+</p>
+
 Look for missing tracks in your Lidarr library and download them from YouTube.
 
 ## Docker Usage
 
-### docker run
+### Docker run
 
-The docker build needs the `.git` directory, so be sure to clone the repository.
+The Docker build needs the `.git` directory, so be sure to clone the repository.
 
 ```bash
 git clone https://github.com/dmzoneill/lidarr-youtube-downloader.git
