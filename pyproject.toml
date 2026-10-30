@@ -14,7 +14,7 @@ youtube-search-python = "*"
 eyed3 = "*"
 typer = "*"
 yt-dlp = "*"
-certifi = ">=2026.10.19"
+certifi = ">=2026.10.23"
 
 [tool.poetry.dev-dependencies]
 pytest = "^9.1"
